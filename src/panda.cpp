@@ -3,7 +3,7 @@
 // #endif
 
 #include "panda.h"
-
+#include "devices/Pump.h"
 #include <mc_rtc/logging.h>
 
 #include <boost/algorithm/string.hpp>
@@ -27,7 +27,7 @@ namespace bfs = boost::filesystem;
 namespace mc_robots
 {
 
-PANDARobotModule::PANDARobotModule() : RobotModule(PANDA_DESCRIPTION_PATH, "panda")
+PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModule(PANDA_DESCRIPTION_PATH, "panda")
 {
   // init(rbd::parsers::from_urdf_file(urdf_path, false));
   // initConvexHull();
@@ -47,6 +47,7 @@ PANDARobotModule::PANDARobotModule() : RobotModule(PANDA_DESCRIPTION_PATH, "pand
 
   _bodySensors.clear();
 
+  /* Default posture joint values in degrees */
   halfSitting["panda_jointA1"] = {0};
   halfSitting["panda_jointA2"] = {0};
   halfSitting["panda_jointA3"] = {0};
@@ -71,18 +72,52 @@ PANDARobotModule::PANDARobotModule() : RobotModule(PANDA_DESCRIPTION_PATH, "pand
                             mc_rbdyn::Collision("panda_linkA3", "panda_linkA8", 0.06, 0.02, 0.),
                             mc_rbdyn::Collision("panda_linkA5", "panda_linkA7", 0.06, 0.02, 0.) //TODO do we need the last self-collision?
                             };
+  /* Additional self collisions */
+  if(pump){
+    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA0", "pump", 0.06, 0.02, 0.));
+    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA1", "pump", 0.06, 0.02, 0.));
+    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA2", "pump", 0.06, 0.02, 0.));
+    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA3", "pump", 0.06, 0.02, 0.));
+  }
+  if(foot){
+    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA0", "foot", 0.06, 0.02, 0.));
+    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA1", "foot", 0.06, 0.02, 0.));
+    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA2", "foot", 0.06, 0.02, 0.));
+    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA3", "foot", 0.06, 0.02, 0.));
+  }
+  if(hand){
+    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA0", "hand", 0.06, 0.02, 0.));
+    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA1", "hand", 0.06, 0.02, 0.));
+    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA2", "hand", 0.06, 0.02, 0.));
+    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA3", "hand", 0.06, 0.02, 0.));
+  }
 
   _commonSelfCollisions = _minimalSelfCollisions;
   // _commonSelfCollisions.push_back(mc_rbdyn::Collision("...", "...", 0.02, 0.01, 0.));
 
-  _grippers = {}; //{{"l_gripper", {"L_HAND_J0", "L_HAND_J1"}, false}};
-
   _ref_joint_order = {"panda_jointA1", "panda_jointA2", "panda_jointA3", "panda_jointA4", "panda_jointA5", "panda_jointA6", "panda_jointA7"};
 
   _default_attitude = {{}}; //{{1., 0., 0., 0., 0., 0., 0.747187}};
+
+  // if(pump){
+  //   /* Pump device */
+  //   devices.emplace_back(new mc_panda::Pump("Pump", "panda_linkA8", sva::PTransformd::Identity()));
+  // }
+
+  /* Grippers */
+  if(hand){
+    // Module wide gripper configuration
+    _gripperSafety = {0.15, 1.0};
+    _grippers = {{"l_gripper", {"L_HAND_J0", "L_HAND_J1"}, false}};
+    readUrdf("panda", gripperLinks);
+  }
+  else{
+    _grippers = {};
+    readUrdf("panda", {});
+  }
 }
 
-// void PANDARobotModule::initConvexHull() 
+// void PandaRobotModule::initConvexHull() 
 // {
 //   std::string convexPath = path + "/convex/" + name + "/";
 //   bfs::path p(convexPath);
@@ -103,7 +138,7 @@ PANDARobotModule::PANDARobotModule() : RobotModule(PANDA_DESCRIPTION_PATH, "pand
 //   }
 // }
 
-std::map<std::string, std::pair<std::string, std::string>> PANDARobotModule::getConvexHull(
+std::map<std::string, std::pair<std::string, std::string>> PandaRobotModule::getConvexHull(
     const std::map<std::string, std::pair<std::string, std::string>> & files) const
 {
   std::string convexPath = path + "/convex/";
@@ -115,7 +150,7 @@ std::map<std::string, std::pair<std::string, std::string>> PANDARobotModule::get
   return res;
 }
 
-void PANDARobotModule::readUrdf(const std::string & robotName, const std::vector<std::string> & filteredLinks)
+void PandaRobotModule::readUrdf(const std::string & robotName, const std::vector<std::string> & filteredLinks)
 {
   urdf_path = path + "/urdf/" + robotName + ".urdf";
   std::ifstream ifs(urdf_path);
@@ -139,16 +174,39 @@ void PANDARobotModule::readUrdf(const std::string & robotName, const std::vector
   }
 }
 
-void PANDARobotModule::init()
+void PandaRobotModule::init()
 {
   _springs.springsBodies = {}; //{"l_ankle", "r_ankle"};
+
+  /* Collision hulls */
   auto fileByBodyName = stdCollisionsFiles(mb);
   _convexHull = getConvexHull(fileByBodyName);
+
+  /* Joint limits */
   _bounds = nominalBounds(limits);
+
+  /* Additional torque-derivative limits according to https://frankaemika.github.io/docs/control_parameters.html */
+  std::map<std::string, std::vector<double>> torqueDerivativeUpper;
+  std::map<std::string, std::vector<double>> torqueDerivativeLower;
+  for (auto it = _bounds.at(0).begin(); it != _bounds.at(0).end(); it++)
+  {
+    std::vector<double> vecUpper;
+    std::vector<double> vecLower;
+    for(unsigned int i=0; i<it->second.size(); i++)
+    {
+      vecUpper.push_back( +1000.0 );
+      vecLower.push_back( -1000.0 );
+    }
+    torqueDerivativeUpper.insert( std::make_pair(it->first, vecUpper) );
+    torqueDerivativeLower.insert( std::make_pair(it->first, vecLower) );
+  }
+  _torqueDerivativeBounds = {torqueDerivativeLower, torqueDerivativeUpper};
+
+  /* Halfsit posture */
   _stance = halfSittingPose(mb);
 }
 
-std::map<std::string, std::vector<double>> PANDARobotModule::halfSittingPose(const rbd::MultiBody & mb) const
+std::map<std::string, std::vector<double>> PandaRobotModule::halfSittingPose(const rbd::MultiBody & mb) const
 {
   std::map<std::string, std::vector<double>> res;
   for(const auto & j : mb.joints())
@@ -169,7 +227,7 @@ std::map<std::string, std::vector<double>> PANDARobotModule::halfSittingPose(con
   return res;
 }
 
-std::vector<std::map<std::string, std::vector<double>>> PANDARobotModule::nominalBounds(
+std::vector<std::map<std::string, std::vector<double>>> PandaRobotModule::nominalBounds(
     const mc_rbdyn_urdf::Limits & limits) const
 {
   std::vector<std::map<std::string, std::vector<double>>> res(0);
@@ -202,7 +260,8 @@ std::vector<std::map<std::string, std::vector<double>>> PANDARobotModule::nomina
   return res;
 }
 
-std::map<std::string, std::pair<std::string, std::string>> PANDARobotModule::stdCollisionsFiles(
+
+std::map<std::string, std::pair<std::string, std::string>> PandaRobotModule::stdCollisionsFiles(
     const rbd::MultiBody & mb) const
 {
   std::map<std::string, std::pair<std::string, std::string>> res;
@@ -211,75 +270,63 @@ std::map<std::string, std::pair<std::string, std::string>> PANDARobotModule::std
     // Filter out virtual links without convex files
     if(std::find(std::begin(virtualLinks), std::end(virtualLinks), b.name()) == std::end(virtualLinks))
     {
-      res[b.name()] = {b.name(), boost::algorithm::replace_first_copy(b.name(), "_LINK", "")};
+      res[b.name()] = {b.name(), b.name()}; //TODO taken from mc_pepper
+      // res[b.name()] = {b.name(), boost::algorithm::replace_first_copy(b.name(), "_LINK", "")};
     }
   }
 
-  auto addBody = [&res](const std::string & body, const std::string & file) { res[body] = {body, file}; };
-  addBody("body", "WAIST_LINK");
-  addBody("torso", "CHEST_Y");
+  // auto addBody = [&res](const std::string & body, const std::string & file) { res[body] = {body, file}; };
+  // addBody("body", "WAIST_LINK");
+  // addBody("torso", "CHEST_Y");
 
-  addBody("R_HIP_Y_LINK", "HIP_Y");
-  addBody("R_HIP_R_LINK", "CHEST_P");
-  addBody("R_ANKLE_P_LINK", "L_ANKLE_P");
-  addBody("r_ankle", "R_FOOT");
+  // addBody("R_HIP_Y_LINK", "HIP_Y");
+  // addBody("R_HIP_R_LINK", "CHEST_P");
+  // addBody("R_ANKLE_P_LINK", "L_ANKLE_P");
+  // addBody("r_ankle", "R_FOOT");
 
-  addBody("L_HIP_Y_LINK", "HIP_Y");
-  addBody("L_HIP_R_LINK", "CHEST_P");
-  addBody("l_ankle", "L_FOOT");
+  // addBody("L_HIP_Y_LINK", "HIP_Y");
+  // addBody("L_HIP_R_LINK", "CHEST_P");
+  // addBody("l_ankle", "L_FOOT");
 
-  addBody("CHEST_P_LINK", "CHEST");
+  // addBody("CHEST_P_LINK", "CHEST");
 
-  addBody("R_SHOULDER_Y_LINK", "SHOULDER_Y");
-  addBody("R_ELBOW_P_LINK", "ELBOW_P");
-  addBody("R_WRIST_P_LINK", "WRIST_P");
-  addBody("r_wrist", "R_WRIST_R");
+  // addBody("R_SHOULDER_Y_LINK", "SHOULDER_Y");
+  // addBody("R_ELBOW_P_LINK", "ELBOW_P");
+  // addBody("R_WRIST_P_LINK", "WRIST_P");
+  // addBody("r_wrist", "R_WRIST_R");
 
-  auto finger = [&addBody](const std::string & prefix) {
-    addBody(prefix + "_HAND_J0_LINK", prefix + "_THUMB");
-    addBody(prefix + "_HAND_J1_LINK", prefix + "_F1");
-    for(unsigned int i = 2; i < 6; ++i)
-    {
-      std::stringstream key1;
-      key1 << prefix << "_F" << i << "2_LINK";
-      std::stringstream key2;
-      key2 << prefix << "_F" << i << "3_LINK";
-      addBody(key1.str(), "F2");
-      addBody(key2.str(), "F3");
-    }
-  };
-  finger("R");
-  finger("L");
+  // auto finger = [&addBody](const std::string & prefix) {
+  //   addBody(prefix + "_HAND_J0_LINK", prefix + "_THUMB");
+  //   addBody(prefix + "_HAND_J1_LINK", prefix + "_F1");
+  //   for(unsigned int i = 2; i < 6; ++i)
+  //   {
+  //     std::stringstream key1;
+  //     key1 << prefix << "_F" << i << "2_LINK";
+  //     std::stringstream key2;
+  //     key2 << prefix << "_F" << i << "3_LINK";
+  //     addBody(key1.str(), "F2");
+  //     addBody(key2.str(), "F3");
+  //   }
+  // };
+  // finger("R");
+  // finger("L");
 
-  addBody("L_SHOULDER_Y_LINK", "SHOULDER_Y");
-  addBody("L_ELBOW_P_LINK", "ELBOW_P");
-  addBody("L_WRIST_P_LINK", "WRIST_P");
-  addBody("l_wrist", "L_WRIST_R");
+  // addBody("L_SHOULDER_Y_LINK", "SHOULDER_Y");
+  // addBody("L_ELBOW_P_LINK", "ELBOW_P");
+  // addBody("L_WRIST_P_LINK", "WRIST_P");
+  // addBody("l_wrist", "L_WRIST_R");
 
-  auto addWristSubConvex = [&res](const std::string & prefix) {
-    std::string wristY = prefix + "_WRIST_Y_LINK";
-    std::string wristR = boost::algorithm::to_lower_copy(prefix) + "_wrist";
-    res[wristY + "_sub0"] = {wristY, prefix + "_WRIST_Y_sub0"};
-    res[wristR + "_sub0"] = {wristR, prefix + "_WRIST_R_sub0"};
-    res[wristR + "_sub1"] = {wristR, prefix + "_WRIST_R_sub1"};
-  };
-  addWristSubConvex("L");
-  addWristSubConvex("R");
+  // auto addWristSubConvex = [&res](const std::string & prefix) {
+  //   std::string wristY = prefix + "_WRIST_Y_LINK";
+  //   std::string wristR = boost::algorithm::to_lower_copy(prefix) + "_wrist";
+  //   res[wristY + "_sub0"] = {wristY, prefix + "_WRIST_Y_sub0"};
+  //   res[wristR + "_sub0"] = {wristR, prefix + "_WRIST_R_sub0"};
+  //   res[wristR + "_sub1"] = {wristR, prefix + "_WRIST_R_sub1"};
+  // };
+  // addWristSubConvex("L");
+  // addWristSubConvex("R");
 
   return res;
 }
-
-PandaDefaultRobotModule::PandaDefaultRobotModule()
-{
-  readUrdf("panda", {});
-  init();
-}
-
-PandaWithHandRobotModule::PandaWithHandRobotModule()
-{
-  readUrdf("panda", gripperLinks);
-  init();
-}
-
 
 } // namespace mc_robots
