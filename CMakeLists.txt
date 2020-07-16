@@ -40,9 +40,11 @@ configure_file(src/config.h.in "${CMAKE_CURRENT_BINARY_DIR}/include/config.h")
 
 # Panda custom devices library
 set(devices_HDR
+  src/devices/PandaSensor.h
   src/devices/Pump.h
 )
 set(devices_SRC
+  src/devices/PandaSensor.cpp
   src/devices/Pump.cpp
 )
 
