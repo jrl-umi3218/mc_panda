@@ -72,12 +72,26 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
     O_F_ext_hat_K_ = O_F_ext_hat_K;
   }
 
+  /** Return the control command success rate */
+  inline const double get_control_command_success_rate() const
+  {
+    return control_command_success_rate_;
+  }
+
+  inline void set_control_command_success_rate(double control_command_success_rate)
+  {
+    control_command_success_rate_ = control_command_success_rate;
+  }
+
+
+
   mc_rbdyn::DevicePtr clone() const override;
 
 private:
   //sensor signal related members
   std::array<double, 7> tau_ext_hat_filtered_; //External torque, filtered. Unit: \f$[Nm]\f$.
   std::array<double, 6> O_F_ext_hat_K_; //Estimated external wrench (force, torque) acting on stiffness frame, expressed relative to the base frame. Unit: \f$[N,N,N,Nm,Nm,Nm]\f$.
+  double control_command_success_rate_;
 };
 
 typedef std::vector<PandaSensor, Eigen::aligned_allocator<PandaSensor>> PandaSensorVector;
