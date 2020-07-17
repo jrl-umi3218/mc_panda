@@ -115,6 +115,7 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
     _grippers = {};
     readUrdf("panda", {});
   }
+  init();
 }
 
 // void PandaRobotModule::initConvexHull() 
@@ -182,9 +183,6 @@ void PandaRobotModule::init()
   auto fileByBodyName = stdCollisionsFiles(mb);
   _convexHull = getConvexHull(fileByBodyName);
 
-  /* Joint limits */
-  _bounds = nominalBounds(limits);
-
   /* Additional torque-derivative limits according to https://frankaemika.github.io/docs/control_parameters.html */
   std::map<std::string, std::vector<double>> torqueDerivativeUpper;
   std::map<std::string, std::vector<double>> torqueDerivativeLower;
@@ -200,7 +198,12 @@ void PandaRobotModule::init()
     torqueDerivativeUpper.insert( std::make_pair(it->first, vecUpper) );
     torqueDerivativeLower.insert( std::make_pair(it->first, vecLower) );
   }
-  _torqueDerivativeBounds = {torqueDerivativeLower, torqueDerivativeUpper};
+
+  /* Joint limits */
+  std::vector<std::map<std::string, std::vector<double>>> l = nominalBounds(limits);
+  l.push_back(torqueDerivativeLower);
+  l.push_back(torqueDerivativeUpper);
+  _bounds = l;
 
   /* Halfsit posture */
   _stance = halfSittingPose(mb);
