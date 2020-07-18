@@ -83,7 +83,49 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
     control_command_success_rate_ = control_command_success_rate;
   }
 
+  /** Return the configured mass of the end effector */
+  inline const double get_m_ee() const
+  {
+    return m_ee_;
+  }
 
+  inline void set_m_ee(double m_ee)
+  {
+    m_ee_ = m_ee;
+  }
+
+  /** Return the configured mass of the external load */
+  inline const double get_m_load() const
+  {
+    return m_load_;
+  }
+
+  inline void set_m_load(double m_load)
+  {
+    m_load_ = m_load;
+  }
+
+  /** Return which contact level is activated in which joint */
+  inline const std::array<double, 7> & get_joint_contact() const
+  {
+    return joint_contact_;
+  }
+
+  inline void set_joint_contact(std::array<double, 7> joint_contact)
+  {
+    joint_contact_ = joint_contact;
+  }
+
+  /** Return which contact level is activated in which Cartesian dimension (x,y,z,R,P,Y) */
+  inline const std::array<double, 6> & get_cartesian_contact() const
+  {
+    return cartesian_contact_;
+  }
+
+  inline void set_cartesian_contact(std::array<double, 6> cartesian_contact)
+  {
+    cartesian_contact_ = cartesian_contact;
+  }
 
   mc_rbdyn::DevicePtr clone() const override;
 
@@ -92,6 +134,10 @@ private:
   std::array<double, 7> tau_ext_hat_filtered_; //External torque, filtered. Unit: \f$[Nm]\f$.
   std::array<double, 6> O_F_ext_hat_K_; //Estimated external wrench (force, torque) acting on stiffness frame, expressed relative to the base frame. Unit: \f$[N,N,N,Nm,Nm,Nm]\f$.
   double control_command_success_rate_;
+  double m_ee_; //Configured mass of the end effector.
+  double m_load_; //Configured mass of the external load.
+  std::array<double, 7> joint_contact_; //Indicates which contact level is activated in which joint. After contact disappears, value turns to zero.
+  std::array<double, 6> cartesian_contact_; //Indicates which contact level is activated in which Cartesian dimension (x,y,z,R,P,Y). After contact disappears, the value turns to zero.
 };
 
 typedef std::vector<PandaSensor, Eigen::aligned_allocator<PandaSensor>> PandaSensorVector;
