@@ -30,6 +30,10 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
   : mc_rbdyn::Device(name, bodyName, X_b_s)
   {
     type_ = "PandaSensor";
+    tau_ext_hat_filtered_ = Eigen::Matrix<double, 7, 1>::Zero();
+    O_F_ext_hat_K_ = Eigen::Matrix<double, 6, 1>::Zero();
+    joint_contact_ = Eigen::Matrix<double, 7, 1>::Zero();
+    cartesian_contact_ = Eigen::Matrix<double, 6, 1>::Zero();
   }
 
   ~PandaSensor() override;
@@ -51,25 +55,31 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
   // #################################
 
   /** Return the external torque */
-  inline const std::array<double, 7> & get_tau_ext_hat_filtered() const
+  inline const Eigen::Matrix<double, 7, 1> & get_tau_ext_hat_filtered() const
   {
     return tau_ext_hat_filtered_;
   }
 
   inline void set_tau_ext_hat_filtered(std::array<double, 7> tau_ext_hat_filtered)
   {
-    tau_ext_hat_filtered_ = tau_ext_hat_filtered;
+    tau_ext_hat_filtered_ = Eigen::Matrix<double, 7, 1>(tau_ext_hat_filtered.data());
   }
 
-  /** Return the estimated external wrench */
-  inline const std::array<double, 6> & get_O_F_ext_hat_K() const
+  /** Return the estimated external wrench (moment,force) */
+  inline const Eigen::Matrix<double, 6, 1> & get_O_F_ext_hat_K() const
   {
     return O_F_ext_hat_K_;
   }
 
   inline void set_O_F_ext_hat_K(std::array<double, 6> O_F_ext_hat_K)
   {
-    O_F_ext_hat_K_ = O_F_ext_hat_K;
+    //swap (force,moment) -> (moment,force)
+    O_F_ext_hat_K_[3] = O_F_ext_hat_K[0];
+    O_F_ext_hat_K_[4] = O_F_ext_hat_K[1];
+    O_F_ext_hat_K_[5] = O_F_ext_hat_K[2];
+    O_F_ext_hat_K_[0] = O_F_ext_hat_K[3];
+    O_F_ext_hat_K_[1] = O_F_ext_hat_K[4];
+    O_F_ext_hat_K_[2] = O_F_ext_hat_K[5];
   }
 
   /** Return the control command success rate */
@@ -106,38 +116,44 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
   }
 
   /** Return which contact level is activated in which joint */
-  inline const std::array<double, 7> & get_joint_contact() const
+  inline const Eigen::Matrix<double, 7, 1> & get_joint_contact() const
   {
     return joint_contact_;
   }
 
   inline void set_joint_contact(std::array<double, 7> joint_contact)
   {
-    joint_contact_ = joint_contact;
+    joint_contact_ = Eigen::Matrix<double, 7, 1>(joint_contact_.data());
   }
 
-  /** Return which contact level is activated in which Cartesian dimension (x,y,z,R,P,Y) */
-  inline const std::array<double, 6> & get_cartesian_contact() const
+  /** Return which contact level is activated in which Cartesian dimension (R,P,Y,x,y,z) */
+  inline const Eigen::Matrix<double, 6, 1> & get_cartesian_contact() const
   {
     return cartesian_contact_;
   }
 
   inline void set_cartesian_contact(std::array<double, 6> cartesian_contact)
   {
-    cartesian_contact_ = cartesian_contact;
+    //swap (x,y,z,R,P,Y) -> (R,P,Y,x,y,z)
+    cartesian_contact_[3] = cartesian_contact[0];
+    cartesian_contact_[4] = cartesian_contact[1];
+    cartesian_contact_[5] = cartesian_contact[2];
+    cartesian_contact_[0] = cartesian_contact[3];
+    cartesian_contact_[1] = cartesian_contact[4];
+    cartesian_contact_[2] = cartesian_contact[5];
   }
 
   mc_rbdyn::DevicePtr clone() const override;
 
 private:
   //sensor signal related members
-  std::array<double, 7> tau_ext_hat_filtered_; //External torque, filtered. Unit: \f$[Nm]\f$.
-  std::array<double, 6> O_F_ext_hat_K_; //Estimated external wrench (force, torque) acting on stiffness frame, expressed relative to the base frame. Unit: \f$[N,N,N,Nm,Nm,Nm]\f$.
-  double control_command_success_rate_;
-  double m_ee_; //Configured mass of the end effector.
-  double m_load_; //Configured mass of the external load.
-  std::array<double, 7> joint_contact_; //Indicates which contact level is activated in which joint. After contact disappears, value turns to zero.
-  std::array<double, 6> cartesian_contact_; //Indicates which contact level is activated in which Cartesian dimension (x,y,z,R,P,Y). After contact disappears, the value turns to zero.
+  Eigen::Matrix<double, 7, 1> tau_ext_hat_filtered_; //External torque, filtered. Unit: \f$[Nm]\f$.
+  Eigen::Matrix<double, 6, 1> O_F_ext_hat_K_; //Estimated external wrench (force, torque) acting on stiffness frame, expressed relative to the base frame. Unit: \f$[N,N,N,Nm,Nm,Nm]\f$.
+  double control_command_success_rate_ = 0;
+  double m_ee_ = 0; //Configured mass of the end effector.
+  double m_load_ = 0; //Configured mass of the external load.
+  Eigen::Matrix<double, 7, 1> joint_contact_; //Indicates which contact level is activated in which joint. After contact disappears, value turns to zero.
+  Eigen::Matrix<double, 6, 1> cartesian_contact_; //Indicates which contact level is activated in which Cartesian dimension (x,y,z,R,P,Y). After contact disappears, the value turns to zero.
 };
 
 typedef std::vector<PandaSensor, Eigen::aligned_allocator<PandaSensor>> PandaSensorVector;
