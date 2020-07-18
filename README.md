@@ -8,5 +8,8 @@ Dependencies
 ------------
 
 This package requires:
-- [mc_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc)
-- [panda_description](https://gite.lirmm.fr/mc-panda/panda)
+- [mc_rtc]
+- [panda_cnoid]
+
+[panda_cnoid]: https://github.com/gergondet/panda_cnoid
+[mc_rtc]: https://gite.lirmm.fr/multi-contact/mc_rtc

@@ -3,6 +3,19 @@ project(mc_panda LANGUAGES CXX VERSION 1.0.0)
 enable_testing()
 set(CMAKE_CXX_STANDARD 11)
 
+find_program(XACRO xacro)
+if("${XACRO}" STREQUAL "XACRO-NOTFOUND")
+  message(FATAL_ERROR "Could not find xacro in your environment")
+endif()
+
+find_package(Boost REQUIRED COMPONENTS timer serialization filesystem)
+find_package(mc_rtc 1.4.0 REQUIRED)
+
+if(NOT EXISTS "${CMAKE_INSTALL_PREFIX}/share/panda_cnoid/panda_arm_default.urdf")
+  message(FATAL_ERROR "You need to install panda_cnoid before this project")
+endif()
+set(PANDA_DESCRIPTION_PATH "${CMAKE_INSTALL_PREFIX}/share/panda_cnoid")
+
 include(CMakePackageConfigHelpers)
 set(VERSION_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
 set(PROJECT_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
@@ -15,11 +28,6 @@ write_basic_package_version_file(
 configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in" "${PROJECT_CONFIG}" INSTALL_DESTINATION "${CONFIG_INSTALL_DIR}")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake" DESTINATION "${CONFIG_INSTALL_DIR}")
 
-find_package(Boost REQUIRED COMPONENTS timer serialization filesystem)
-find_package(mc_rtc 1.4.0 REQUIRED)
-
-find_description_package(franka_gazebo REQUIRED)
-set(PANDA_DESCRIPTION_PATH "${FRANKA_GAZEBO_PATH}")
 configure_file(src/config.h.in "${CMAKE_CURRENT_BINARY_DIR}/include/config.h")
 
 # Panda custom devices library
