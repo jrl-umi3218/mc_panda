@@ -11,7 +11,7 @@ endif()
 find_package(Boost REQUIRED COMPONENTS timer serialization filesystem)
 find_package(mc_rtc 1.4.0 REQUIRED)
 
-if(NOT EXISTS "${CMAKE_INSTALL_PREFIX}/share/panda_cnoid/panda_arm_default.urdf")
+if(NOT EXISTS "${CMAKE_INSTALL_PREFIX}/share/panda_cnoid/panda_default.urdf")
   message(FATAL_ERROR "You need to install panda_cnoid before this project")
 endif()
 set(PANDA_DESCRIPTION_PATH "${CMAKE_INSTALL_PREFIX}/share/panda_cnoid")
