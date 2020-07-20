@@ -19,17 +19,17 @@ inline static std::string pandaVariant(bool pump, bool foot, bool hand)
 {
   if(pump)
   {
-    return "panda_arm_pump";
+    return "panda_pump";
   }
   if(foot)
   {
-    return "panda_arm_foot";
+    return "panda_foot";
   }
   if(hand)
   {
-    return "panda_arm_hand";
+    return "panda_hand";
   }
-  return "panda_arm_default";
+  return "panda_default";
 }
 
 inline double deg2rad(double theta)
@@ -50,8 +50,8 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
     torqueDerivativeUpper[b.first] = std::vector<double>(b.second.size(), 1000);
     torqueDerivativeLower[b.first] = std::vector<double>(b.second.size(), -1000);
   }
-  _bounds.push_back(torqueDerivativeLower);
-  _bounds.push_back(torqueDerivativeUpper);
+  // _bounds.push_back(torqueDerivativeLower);
+  // _bounds.push_back(torqueDerivativeUpper);
 
   rsdf_dir = path + "/rsdf";
   calib_dir = path + "/calib";
