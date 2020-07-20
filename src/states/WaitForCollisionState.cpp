@@ -52,11 +52,8 @@ void WaitForCollisionState::configure(const mc_rtc::Configuration & config)
 
 void WaitForCollisionState::start(mc_control::fsm::Controller & ctl_)
 {
-  auto & ctl = static_cast<PandaController &>(ctl_);
-  std::string robname = "panda";
   if(ctl_.robot(robname).hasDevice<mc_panda::PandaSensor>(sensorDeviceName))
   {
-    sensor = std::make_shared<mc_panda::PandaSensor>( ctl_.robot(robname).device<mc_panda::PandaSensor>(sensorDeviceName) );
     sensorAvailable = true;
     mc_rtc::log::info("RobotModule has a PandaSensor named {}", sensorDeviceName);
   }
@@ -66,6 +63,7 @@ void WaitForCollisionState::start(mc_control::fsm::Controller & ctl_)
   }
 
   forceSensor = ctl_.robot(robname).forceSensor("LeftHandForceSensor");
+
   // const std::string parentBodyname = "panda_linkA7"; //=parent body of sensor according to forceSensor.parentBody()
   // if(!ctl_.robot(robname).hasBody(parentBodyname)){
   //   LOG_ERROR("body " + parentBodyname + " not found...");
@@ -82,7 +80,6 @@ void WaitForCollisionState::start(mc_control::fsm::Controller & ctl_)
 
 bool WaitForCollisionState::run(mc_control::fsm::Controller & ctl_)
 {
-  auto & ctl = static_cast<PandaController &>(ctl_);
   if(collisionDetected){
     output("OK");
     return true;
@@ -90,7 +87,7 @@ bool WaitForCollisionState::run(mc_control::fsm::Controller & ctl_)
 
   if(sensorAvailable){
     for(int i=0; i<7; i++){
-      joint_contactVector_ = sensor->get_joint_contact();
+      joint_contactVector_ = ctl_.robot(robname).device<mc_panda::PandaSensor>(sensorDeviceName).get_joint_contact();
       if(joint_contactVector_(i) > joint_contactVector_thresholds_(i))
       {
         mc_rtc::log::info("WaitForCollisionState detected a joint-space collision: {}", joint_contactVector_thresholds_);
@@ -101,7 +98,7 @@ bool WaitForCollisionState::run(mc_control::fsm::Controller & ctl_)
       }
     }
     for(int i=0; i<6; i++){
-      cartesian_contactVector_ = sensor->get_cartesian_contact();
+      cartesian_contactVector_ = ctl_.robot(robname).device<mc_panda::PandaSensor>(sensorDeviceName).get_cartesian_contact();
       if(cartesian_contactVector_(i) > cartesian_contactVector_thresholds_(i))
       {
         mc_rtc::log::info("WaitForCollisionState detected a cartesian-space collision: {}", cartesian_contactVector_);
@@ -127,7 +124,6 @@ bool WaitForCollisionState::run(mc_control::fsm::Controller & ctl_)
 
 void WaitForCollisionState::teardown(mc_control::fsm::Controller & ctl_)
 {
-  auto & ctl = static_cast<PandaController &>(ctl_);
   mc_rtc::log::info("WaitForCollisionState teardown done");
 }
 

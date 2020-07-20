@@ -1,7 +1,8 @@
 #pragma once
 
 #include <mc_rbdyn/Device.h>
-
+// #include <mc_rtc/logging.h>
+#include <mc_rtc/log/Logger.h>
 #include <vector>
 
 #include <chrono> //required for std::chrono::milliseconds
@@ -188,6 +189,38 @@ struct MC_RBDYN_DLLAPI Pump : public mc_rbdyn::Device
   inline void setStopCommandResult(const bool ok)
   {
     stopSuccessful_ = ok;
+  }
+
+  // ####################################
+  // LOGGING
+  // ####################################
+
+  inline void addToLogger(mc_rtc::Logger & logger)
+  {
+    std::string logname = "Pump_";
+    logger.addLogEntry(logname + "status", 
+      [this]() {
+        return (bool) device_status_ok_; 
+      }
+    );
+    logger.addLogEntry(logname + "actualpower", 
+      [this]() {
+        return (uint16_t) actual_power_; 
+      }
+    );
+    logger.addLogEntry(logname + "vacuum", 
+      [this]() {
+        return (uint16_t) vacuum_; 
+      }
+    );
+  }
+
+  inline void removeFromLogger(mc_rtc::Logger & logger)
+  {
+    std::string logname = "Pump_";
+    logger.removeLogEntry(logname + "status");
+    logger.removeLogEntry(logname + "actualpower");
+    logger.removeLogEntry(logname + "vacuum");
   }
 
   mc_rbdyn::DevicePtr clone() const override;

@@ -1,7 +1,8 @@
 #pragma once
 
 #include <mc_rbdyn/Device.h>
-
+// #include <mc_rtc/logging.h>
+#include <mc_rtc/log/Logger.h>
 #include <vector>
 
 #include <chrono> //required for std::chrono::milliseconds
@@ -141,6 +142,50 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
     cartesian_contact_[0] = cartesian_contact[3];
     cartesian_contact_[1] = cartesian_contact[4];
     cartesian_contact_[2] = cartesian_contact[5];
+  }
+
+  // ####################################
+  // LOGGING
+  // ####################################
+
+  inline void addToLogger(mc_rtc::Logger & logger)
+  {
+    std::string logname = "PandaSensor_";
+    logger.addLogEntry(logname + "tauexthatfiltered", 
+      [this]() {
+        return (Eigen::VectorXd) tau_ext_hat_filtered_; 
+      }
+    );
+    logger.addLogEntry(logname + "OFexthatK", 
+      [this]() {
+        return (Eigen::VectorXd) O_F_ext_hat_K_; 
+      }
+    );
+    logger.addLogEntry(logname + "successrate", 
+      [this]() {
+        return (double) control_command_success_rate_; 
+      }
+    );
+    logger.addLogEntry(logname + "jointcontact", 
+      [this]() {
+        return (Eigen::VectorXd) joint_contact_; 
+      }
+    );
+    logger.addLogEntry(logname + "cartesiancontact", 
+      [this]() {
+        return (Eigen::VectorXd) cartesian_contact_; 
+      }
+    );
+  }
+  
+  inline void removeFromLogger(mc_rtc::Logger & logger)
+  {
+    std::string logname = "PandaSensor_";
+    logger.removeLogEntry(logname + "tauexthatfilteredVector");
+    logger.removeLogEntry(logname + "OFexthatKVector");
+    logger.removeLogEntry(logname + "successrate");
+    logger.removeLogEntry(logname + "jointcontactVector");
+    logger.removeLogEntry(logname + "cartesiancontactVector");
   }
 
   mc_rbdyn::DevicePtr clone() const override;

@@ -55,48 +55,27 @@ install(TARGETS mc_panda_devices
   RUNTIME DESTINATION bin)
 
 # Panda custom states library
-set(states_HDR
-  src/states/WaitForCollisionState.h
-)
-set(states_SRC
-  src/states/WaitForCollisionState.cpp
-)
-
-add_library(mc_panda_states SHARED ${states_SRC} ${states_HDR})
-add_library(mc_panda::states ALIAS mc_panda_states)
-set_target_properties(mc_panda_states PROPERTIES EXPORT_NAME states)
-target_include_directories(mc_panda_states PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-  $<INSTALL_INTERFACE:include>)
-target_link_libraries(mc_panda_states PUBLIC mc_rtc::mc_rbdyn mc_panda::devices)
-install(FILES ${states_HDR} DESTINATION include/mc_panda/states)
-install(TARGETS mc_panda_states
-  EXPORT mc_pandaTargets
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin)
-
-# Panda custom controller library
-set(controller_HDR
-  src/controller/PandaController.h
-)
-set(controller_SRC
-  src/controller/PandaController.cpp
-)
-
-add_library(mc_panda_controller SHARED ${controller_SRC} ${controller_HDR})
-add_library(mc_panda::controller ALIAS mc_panda_controller)
-set_target_properties(mc_panda_controller PROPERTIES EXPORT_NAME controller)
-target_include_directories(mc_panda_controller PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-  $<INSTALL_INTERFACE:include>)
-target_link_libraries(mc_panda_controller PUBLIC mc_rtc::mc_rbdyn mc_panda::devices mc_panda::states)
-install(FILES ${controller_HDR} DESTINATION include/mc_panda/controller)
-install(TARGETS mc_panda_controller
-  EXPORT mc_pandaTargets
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin)
+add_subdirectory(src/states)
+#set(states_HDR
+#  src/states/WaitForCollisionState.h
+#)
+#set(states_SRC
+#  src/states/WaitForCollisionState.cpp
+#)
+#
+#add_library(mc_panda_states SHARED ${states_SRC} ${states_HDR})
+#add_library(mc_panda::states ALIAS mc_panda_states)
+#set_target_properties(mc_panda_states PROPERTIES EXPORT_NAME states)
+#target_include_directories(mc_panda_states PUBLIC
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+#  $<INSTALL_INTERFACE:include>)
+#target_link_libraries(mc_panda_states PUBLIC mc_rtc::mc_rbdyn mc_panda::devices)
+#install(FILES ${states_HDR} DESTINATION include/mc_panda/states)
+#install(TARGETS mc_panda_states
+#  EXPORT mc_pandaTargets
+#  ARCHIVE DESTINATION lib
+#  LIBRARY DESTINATION lib
+#  RUNTIME DESTINATION bin)
 
 # Panda robot module library
 add_robot(panda src/panda.cpp src/panda.h)

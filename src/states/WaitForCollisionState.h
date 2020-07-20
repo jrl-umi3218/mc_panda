@@ -2,8 +2,8 @@
 
 #include <mc_control/CompletionCriteria.h>
 #include <mc_control/fsm/State.h>
+#include <mc_control/fsm/Controller.h>
 #include "../devices/PandaSensor.h"
-#include "../controller/PandaController.h"
 
 struct WaitForCollisionState : mc_control::fsm::State
 {
@@ -19,8 +19,8 @@ struct WaitForCollisionState : mc_control::fsm::State
     mc_rtc::Configuration state_conf_;
 
     bool sensorAvailable = false;
-    std::shared_ptr<mc_panda::PandaSensor> sensor;
-    std::string sensorDeviceName = "PandaSensor";
+    const std::string sensorDeviceName = "PandaSensor";
+    const std::string robname = "panda_default";
 
     bool collisionDetected = false;
     Eigen::Matrix<double, 7, 1> joint_contactVector_;
