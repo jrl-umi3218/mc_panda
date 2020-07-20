@@ -11,10 +11,10 @@ endif()
 find_package(Boost REQUIRED COMPONENTS timer serialization filesystem)
 find_package(mc_rtc 1.4.0 REQUIRED)
 
-if(NOT EXISTS "${CMAKE_INSTALL_PREFIX}/share/panda_cnoid/panda_arm_default.urdf")
-  message(FATAL_ERROR "You need to install panda_cnoid before this project")
-endif()
-set(PANDA_DESCRIPTION_PATH "${CMAKE_INSTALL_PREFIX}/share/panda_cnoid")
+# if(NOT EXISTS "${CMAKE_INSTALL_PREFIX}/share/panda_cnoid/panda_arm_default.urdf")
+#   message(FATAL_ERROR "You need to install panda_cnoid before this project")
+# endif()
+# set(PANDA_DESCRIPTION_PATH "${CMAKE_INSTALL_PREFIX}/share/panda_cnoid")
 
 include(CMakePackageConfigHelpers)
 set(VERSION_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
@@ -56,26 +56,6 @@ install(TARGETS mc_panda_devices
 
 # Panda custom states library
 add_subdirectory(src/states)
-#set(states_HDR
-#  src/states/WaitForCollisionState.h
-#)
-#set(states_SRC
-#  src/states/WaitForCollisionState.cpp
-#)
-#
-#add_library(mc_panda_states SHARED ${states_SRC} ${states_HDR})
-#add_library(mc_panda::states ALIAS mc_panda_states)
-#set_target_properties(mc_panda_states PROPERTIES EXPORT_NAME states)
-#target_include_directories(mc_panda_states PUBLIC
-#  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-#  $<INSTALL_INTERFACE:include>)
-#target_link_libraries(mc_panda_states PUBLIC mc_rtc::mc_rbdyn mc_panda::devices)
-#install(FILES ${states_HDR} DESTINATION include/mc_panda/states)
-#install(TARGETS mc_panda_states
-#  EXPORT mc_pandaTargets
-#  ARCHIVE DESTINATION lib
-#  LIBRARY DESTINATION lib
-#  RUNTIME DESTINATION bin)
 
 # Panda robot module library
 add_robot(panda src/panda.cpp src/panda.h)
