@@ -44,6 +44,7 @@ inline static std::string pandaVariant(bool pump, bool foot, bool hand)
 
 PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModule(PANDA_DESCRIPTION_PATH, pandaVariant(pump, foot, hand))
 {
+  mc_rtc::log::success("PandaRobotModule loaded with name: {}", name);
   urdf_path = path + "/" + name + ".urdf";
   _real_urdf = urdf_path;
   init(rbd::parsers::from_urdf_file(urdf_path, true));
@@ -59,7 +60,7 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
   // _bounds.push_back(torqueDerivativeLower);
   // _bounds.push_back(torqueDerivativeUpper);
 
-  rsdf_dir = path + "/rsdf";
+  rsdf_dir = path + "/rsdf/" + name + "/";
   calib_dir = path + "/calib";
 
   _bodySensors.clear();
