@@ -18,19 +18,28 @@ namespace mc_robots
 
 inline static std::string pandaVariant(bool pump, bool foot, bool hand)
 {
-  if(pump)
+  if(pump && !foot && !hand)
   {
+    mc_rtc::log::info("PandaRobotModule uses the panda variant: 'panda_pump'");
     return "panda_pump";
   }
-  if(foot)
+  if(!pump && foot && !hand)
   {
+    mc_rtc::log::info("PandaRobotModule uses the panda variant: 'panda_foot'");
     return "panda_foot";
   }
-  if(hand)
+  if(!pump && !foot && hand)
   {
+    mc_rtc::log::info("PandaRobotModule uses the panda variant: 'panda_hand'");
     return "panda_hand";
   }
-  return "panda_default";
+  if(!pump && !foot && !hand)
+  {
+    mc_rtc::log::info("PandaRobotModule uses the panda variant: 'panda_default'");
+    return "panda_default";
+  }
+  mc_rtc::log::error("PandaRobotModule does not provide this panda variant...");
+  return "";
 }
 
 PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModule(PANDA_DESCRIPTION_PATH, pandaVariant(pump, foot, hand))
@@ -46,6 +55,7 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
     torqueDerivativeUpper[b.first] = std::vector<double>(b.second.size(), 1000);
     torqueDerivativeLower[b.first] = std::vector<double>(b.second.size(), -1000);
   }
+  //TODO add bounds for torque-derivative constraint
   // _bounds.push_back(torqueDerivativeLower);
   // _bounds.push_back(torqueDerivativeUpper);
 
@@ -138,6 +148,9 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
     _gripperSafety = {0.15, 1.0};
     _grippers = {{"l_gripper", {"L_HAND_J0", "L_HAND_J1"}, false}};
   }
+
+  mc_rtc::log::success("PandaRobotModule uses urdf_path {}", urdf_path);
+  mc_rtc::log::success("PandaRobotModule uses rsdf_dir {}", rsdf_dir);
 }
 
 } // namespace mc_robots
