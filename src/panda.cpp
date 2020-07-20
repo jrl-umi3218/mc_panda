@@ -9,6 +9,7 @@
 #endif
 
 #include <mc_rbdyn/rpy_utils.h>
+#include <mc_rtc/constants.h>
 
 #include <RBDyn/parsers/urdf.h>
 
@@ -30,11 +31,6 @@ inline static std::string pandaVariant(bool pump, bool foot, bool hand)
     return "panda_hand";
   }
   return "panda_default";
-}
-
-inline double deg2rad(double theta)
-{
-  return theta * M_PI / 180;
 }
 
 PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModule(PANDA_DESCRIPTION_PATH, pandaVariant(pump, foot, hand))
@@ -59,13 +55,13 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
   _bodySensors.clear();
 
   /* Default posture joint values in degrees */
-  _stance["panda_jointA1"] = {deg2rad(0)};
-  _stance["panda_jointA2"] = {deg2rad(0)};
-  _stance["panda_jointA3"] = {deg2rad(0)};
-  _stance["panda_jointA4"] = {deg2rad(-120)};
-  _stance["panda_jointA5"] = {deg2rad(0)};
-  _stance["panda_jointA6"] = {deg2rad(120)};
-  _stance["panda_jointA7"] = {deg2rad(0)};
+  _stance["panda_jointA1"] = {mc_rtc::constants::toRad(0)};
+  _stance["panda_jointA2"] = {mc_rtc::constants::toRad(0)};
+  _stance["panda_jointA3"] = {mc_rtc::constants::toRad(0)};
+  _stance["panda_jointA4"] = {mc_rtc::constants::toRad(-120)};
+  _stance["panda_jointA5"] = {mc_rtc::constants::toRad(0)};
+  _stance["panda_jointA6"] = {mc_rtc::constants::toRad(120)};
+  _stance["panda_jointA7"] = {mc_rtc::constants::toRad(0)};
 
   _forceSensors.push_back(mc_rbdyn::ForceSensor("LeftHandForceSensor", "l_wrist", sva::PTransformd(mc_rbdyn::rpyToMat(3.14,0.0,0.0), Eigen::Vector3d(0, 0, -0.04435))));
 
