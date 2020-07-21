@@ -13,39 +13,36 @@ void WaitForCollisionState::configure(const mc_rtc::Configuration & config)
 
   state_conf_.load(config);
   if(state_conf_.has("jointContactThresholds")){
-    LOG_SUCCESS("in configure method loading the config, found jointContactThresholds")
+    mc_rtc::log::success("in configure method loading the config, found jointContactThresholds");
     joint_contactVector_thresholds_ = state_conf_("jointContactThresholds");
     if(joint_contactVector_thresholds_.size() != 7)
     {
-      LOG_ERROR("the jointContactThresholds does not contain 7 elements... " << joint_contactVector_thresholds_)
-      throw;
+      mc_rtc::log::error_and_throw<std::runtime_error>("the jointContactThresholds does not contain 7 elements... {}", joint_contactVector_thresholds_);
     }
     else{
-      LOG_INFO("use jointContactThresholds " << joint_contactVector_thresholds_)
+      mc_rtc::log::info("use jointContactThresholds {}", joint_contactVector_thresholds_);
     }
   }
   if(state_conf_.has("cartesianContactThresholds")){
-    LOG_SUCCESS("in configure method loading the config, found cartesianContactThresholds")
+    mc_rtc::log::success("in configure method loading the config, found cartesianContactThresholds");
     cartesian_contactVector_thresholds_ = state_conf_("cartesianContactThresholds");
     if(cartesian_contactVector_thresholds_.size() != 6)
     {
-      LOG_ERROR("the cartesianContactThresholds does not contain 6 elements... " << cartesian_contactVector_thresholds_)
-      throw;
+      mc_rtc::log::error_and_throw<std::runtime_error>("the cartesianContactThresholds does not contain 6 elements... {}", cartesian_contactVector_thresholds_);
     }
     else{
-      LOG_INFO("use cartesianContactThresholds " << cartesian_contactVector_thresholds_)
+      mc_rtc::log::info("use cartesianContactThresholds {}", cartesian_contactVector_thresholds_);
     }
   }
   if(state_conf_.has("forceThreshold")){
-    LOG_SUCCESS("in configure method loading the config, found forceThreshold")
+    mc_rtc::log::success("in configure method loading the config, found forceThreshold");
     forceThreshold_ = state_conf_("forceThreshold");
     if(forceThreshold_ > 0)
     {
-      LOG_ERROR("the forceThreshold is not positive... " << forceThreshold_)
-      throw;
+      mc_rtc::log::error_and_throw<std::runtime_error>("the forceThreshold is not positive... {}", forceThreshold_);
     }
     else{
-      LOG_INFO("use forceThreshold " << forceThreshold_)
+      mc_rtc::log::info("use forceThreshold {}", forceThreshold_);
     }
   }
 }
@@ -63,17 +60,6 @@ void WaitForCollisionState::start(mc_control::fsm::Controller & ctl_)
   }
 
   forceSensor = ctl_.robot(robname).forceSensor("LeftHandForceSensor");
-
-  // const std::string parentBodyname = "panda_linkA7"; //=parent body of sensor according to forceSensor.parentBody()
-  // if(!ctl_.robot(robname).hasBody(parentBodyname)){
-  //   LOG_ERROR("body " + parentBodyname + " not found...");
-  //   throw;
-  // }
-  // if(!r.bodyHasForceSensor(parentBodyname)){
-  //   LOG_ERROR("body " + parentBodyname + " has no force sensor attached...");
-  //   throw;
-  // }
-  // forceSensor = r.bodyForceSensor(parentBodyname);
 
   mc_rtc::log::success("WaitForCollisionState state start done");
 }
