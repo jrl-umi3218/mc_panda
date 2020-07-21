@@ -1,5 +1,6 @@
 #include "panda.h"
 #include "devices/Pump.h"
+#include "devices/PandaSensor.h"
 
 #include "config.h"
 
@@ -65,7 +66,6 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
 
   _bodySensors.clear();
 
-  /* Default posture joint values in degrees */
   _stance["panda_jointA1"] = {mc_rtc::constants::toRad(0)};
   _stance["panda_jointA2"] = {mc_rtc::constants::toRad(0)};
   _stance["panda_jointA3"] = {mc_rtc::constants::toRad(0)};
@@ -136,6 +136,8 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
 
   _default_attitude = {{}};
 
+  //NOTE: this is a joint-space sensor and not attached to a specific Cartesian link with a certain transformation
+  _devices.emplace_back(new mc_panda::PandaSensor("PandaSensor", "panda_linkA8", sva::PTransformd::Identity()));
   if(pump)
   {
     /* Pump device */
