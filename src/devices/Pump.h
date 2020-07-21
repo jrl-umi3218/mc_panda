@@ -10,6 +10,14 @@
 namespace mc_panda
 {
 
+enum class NextPumpCommand
+{
+  None,
+  Vacuum,
+  Dropoff,
+  Stop
+};
+
 /** This structure defines a pump vacuum gripper device equipped with a suction cup, 
  * that is a device that can vacuum and blowoff objects */
 struct MC_RBDYN_DLLAPI Pump : public mc_rbdyn::Device
@@ -121,21 +129,20 @@ struct MC_RBDYN_DLLAPI Pump : public mc_rbdyn::Device
   // METHODS RELATED TO ACTUATOR COMMANDS => https://github.com/frankaemika/libfranka/blob/master/include/franka/vacuum_gripper.h
   // ####################################
 
+  inline const NextPumpCommand & NextPumpCommandRequested() const
+  {
+    return nc;
+  }
+
   /** Vacuum an object. Return true if the vacuum has been established, otherwise return false.
    * @param[in] vacuum Setpoint for control mode. Unit: \f$[10*mbar]\f$.
    * @param[in] timeout Vacuum timeout. Unit: \f$[ms]\f$.
    */
   inline void requestVacuumCommand(const uint8_t vacuum, const std::chrono::milliseconds timeout)
   {
+    nc = NextPumpCommand::Vacuum;
     vacuumCommand_ = vacuum;
     vacuumTimeoutCommand_ = timeout;
-    vacuumCommandRequested_ = true;
-    // return vacuumSuccessful_;
-  }
-
-  inline const bool & vacuumCommandRequested() const
-  {
-    return vacuumCommandRequested_;
   }
 
   inline const void getVacuumCommandParams(uint8_t & vacuum, std::chrono::milliseconds & timeout) const
@@ -154,14 +161,9 @@ struct MC_RBDYN_DLLAPI Pump : public mc_rbdyn::Device
    */
   inline void requestDropoffCommand(const std::chrono::milliseconds timeout)
   {
+    nc = NextPumpCommand::Dropoff;
     dropoffTimeoutCommand_ = timeout;
-    dropoffCommandRequested_ = true;
     // return dropoffSuccessful_;
-  }
-
-  inline const bool & dropoffCommandRequested() const
-  {
-    return dropoffCommandRequested_;
   }
 
   inline const void getDropoffCommandParam(std::chrono::milliseconds & timeout) const
@@ -177,13 +179,8 @@ struct MC_RBDYN_DLLAPI Pump : public mc_rbdyn::Device
   /** Stop a currently running vacuum or drop off operation. Return true if command was successful, otherwise return false.*/
   inline void requestStopCommand()
   {
-    stopCommandRequested_ = true;
+    nc = NextPumpCommand::Stop;
     // return stopSuccessful_;
-  }
-
-  inline const bool & stopCommandRequested() const
-  {
-    return stopCommandRequested_;
   }
 
   inline void setStopCommandResult(const bool ok)
@@ -238,12 +235,10 @@ private:
   uint8_t vacuumCommand_ = 0; // Setpoint for control mode. Unit: \f$[10*mbar]\f$.
   std::chrono::milliseconds vacuumTimeoutCommand_ = std::chrono::milliseconds(0); // Vacuum timeout. Unit: \f$[ms]\f$.
   std::chrono::milliseconds dropoffTimeoutCommand_ = std::chrono::milliseconds(0); // Dropoff timeout. Unit: \f$[ms]\f$.
-  bool vacuumCommandRequested_ = false;
-  bool dropoffCommandRequested_ = false;
-  bool stopCommandRequested_ = false;
   bool vacuumSuccessful_ = false;
   bool dropoffSuccessful_ = false;
   bool stopSuccessful_ = false;
+  NextPumpCommand nc = NextPumpCommand::None;
 };
 
 typedef std::vector<Pump, Eigen::aligned_allocator<Pump>> PumpVector;
