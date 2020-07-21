@@ -58,12 +58,14 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
   /** Return the external torque */
   inline const Eigen::Matrix<double, 7, 1> & get_tau_ext_hat_filtered() const
   {
+    mc_rtc::log::info("{} get_tau_ext_hat_filtered() was called, returning tau_ext_hat_filtered_: {}", logging, tau_ext_hat_filtered_.transpose()); //TODO
     return tau_ext_hat_filtered_;
   }
 
   inline void set_tau_ext_hat_filtered(std::array<double, 7> tau_ext_hat_filtered)
   {
     tau_ext_hat_filtered_ = Eigen::Matrix<double, 7, 1>(tau_ext_hat_filtered.data());
+    mc_rtc::log::info("{} set_tau_ext_hat_filtered() was called, providing tau_ext_hat_filtered_: {}", logging, tau_ext_hat_filtered_.transpose()); //TODO
   }
 
   /** Return the estimated external wrench (moment,force) */
@@ -150,9 +152,11 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
 
   inline void addToLogger(mc_rtc::Logger & logger)
   {
+    logging=true;
     std::string logname = "PandaSensor_";
     logger.addLogEntry(logname + "tauexthatfiltered", 
       [this]() {
+        mc_rtc::log::info("logging tau_ext_hat_filtered_: {}", tau_ext_hat_filtered_.transpose()); //TODO
         return (Eigen::VectorXd) tau_ext_hat_filtered_; 
       }
     );
@@ -176,25 +180,28 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
         return (Eigen::VectorXd) cartesian_contact_; 
       }
     );
+    mc_rtc::log::info("PandaSensor device started to log data"); //TODO
   }
   
   inline void removeFromLogger(mc_rtc::Logger & logger)
   {
+    logging=false;
     std::string logname = "PandaSensor_";
-    logger.removeLogEntry(logname + "tauexthatfilteredVector");
-    logger.removeLogEntry(logname + "OFexthatKVector");
+    logger.removeLogEntry(logname + "tauexthatfiltered");
+    logger.removeLogEntry(logname + "OFexthatK");
     logger.removeLogEntry(logname + "successrate");
-    logger.removeLogEntry(logname + "jointcontactVector");
-    logger.removeLogEntry(logname + "cartesiancontactVector");
+    logger.removeLogEntry(logname + "jointcontact");
+    logger.removeLogEntry(logname + "cartesiancontact");
   }
 
   mc_rbdyn::DevicePtr clone() const override;
 
 private:
+  bool logging=false;
   //sensor signal related members
   Eigen::Matrix<double, 7, 1> tau_ext_hat_filtered_; //External torque, filtered. Unit: \f$[Nm]\f$.
   Eigen::Matrix<double, 6, 1> O_F_ext_hat_K_; //Estimated external wrench (force, torque) acting on stiffness frame, expressed relative to the base frame. Unit: \f$[N,N,N,Nm,Nm,Nm]\f$.
-  double control_command_success_rate_ = 0;
+  double control_command_success_rate_ = 1.0;
   double m_ee_ = 0; //Configured mass of the end effector.
   double m_load_ = 0; //Configured mass of the external load.
   Eigen::Matrix<double, 7, 1> joint_contact_; //Indicates which contact level is activated in which joint. After contact disappears, value turns to zero.

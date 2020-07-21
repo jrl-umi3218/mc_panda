@@ -16,11 +16,13 @@ struct WaitForCollisionState : mc_control::fsm::State
     void teardown(mc_control::fsm::Controller & ctl) override;
 
   private:
+    void addToLogger(mc_rtc::Logger & logger);
+    void removeFromLogger(mc_rtc::Logger & logger);
+
     mc_rtc::Configuration state_conf_;
 
     bool sensorAvailable = false;
     const std::string sensorDeviceName = "PandaSensor";
-    const std::string robname = "panda_default";
 
     bool collisionDetected = false;
     Eigen::Matrix<double, 7, 1> joint_contactVector_;
