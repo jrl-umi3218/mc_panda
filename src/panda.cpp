@@ -74,7 +74,7 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
   _stance["panda_jointA6"] = {mc_rtc::constants::toRad(120)};
   _stance["panda_jointA7"] = {mc_rtc::constants::toRad(0)};
 
-  _forceSensors.push_back(mc_rbdyn::ForceSensor("LeftHandForceSensor", "l_wrist", sva::PTransformd(mc_rbdyn::rpyToMat(3.14,0.0,0.0), Eigen::Vector3d(0, 0, -0.04435))));
+  _forceSensors.push_back(mc_rbdyn::ForceSensor("LeftHandForceSensor", "panda_linkA7", sva::PTransformd(mc_rbdyn::rpyToMat(3.14,0.0,0.0), Eigen::Vector3d(0, 0, -0.04435))));
 
   for(size_t i = 0; i < 8; ++i)
   {
