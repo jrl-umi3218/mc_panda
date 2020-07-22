@@ -147,6 +147,21 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
   }
 
   // ####################################
+  // METHODS RELATED TO ACTUATOR COMMANDS
+  // ####################################
+
+  /** Stop the robot */
+  inline void requestStopCommand()
+  {
+    stopRequested_ = true;
+  }
+
+  inline const bool & stopRequested() const
+  {
+    return stopRequested_;
+  }
+
+  // ####################################
   // LOGGING
   // ####################################
 
@@ -206,6 +221,9 @@ private:
   double m_load_ = 0; //Configured mass of the external load.
   Eigen::Matrix<double, 7, 1> joint_contact_; //Indicates which contact level is activated in which joint. After contact disappears, value turns to zero.
   Eigen::Matrix<double, 6, 1> cartesian_contact_; //Indicates which contact level is activated in which Cartesian dimension (x,y,z,R,P,Y). After contact disappears, the value turns to zero.
+
+  //actuator command related members
+  bool stopRequested_=false;
 };
 
 typedef std::vector<PandaSensor, Eigen::aligned_allocator<PandaSensor>> PandaSensorVector;
