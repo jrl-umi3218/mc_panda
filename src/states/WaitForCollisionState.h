@@ -26,9 +26,11 @@ struct WaitForCollisionState : mc_control::fsm::State
 
     bool collisionDetected = false;
     Eigen::Matrix<double, 7, 1> joint_contactVector_;
-    Eigen::VectorXd joint_contactVector_thresholds_;
+    Eigen::VectorXd joint_contactVector_thresholds_; //w.r.t. tau_ext_hat_filtered
+    Eigen::VectorXd joint_contactVector_thresholds_log_;
     Eigen::Matrix<double, 6, 1> cartesian_contactVector_;
-    Eigen::VectorXd cartesian_contactVector_thresholds_;
+    Eigen::VectorXd cartesian_contactVector_thresholds_; //w.r.t. K_F_ext_hat_K
+    Eigen::VectorXd cartesian_contactVector_thresholds_log_;
     double forceThreshold_ = 10;
     mc_rbdyn::ForceSensor forceSensor;
 };
