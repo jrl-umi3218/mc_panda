@@ -33,6 +33,7 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
     type_ = "PandaSensor";
     tau_ext_hat_filtered_ = Eigen::Matrix<double, 7, 1>::Zero();
     O_F_ext_hat_K_ = Eigen::Matrix<double, 6, 1>::Zero();
+    K_F_ext_hat_K_ = Eigen::Matrix<double, 6, 1>::Zero();
     joint_contact_ = Eigen::Matrix<double, 7, 1>::Zero();
     cartesian_contact_ = Eigen::Matrix<double, 6, 1>::Zero();
   }
@@ -58,17 +59,15 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
   /** Return the external torque */
   inline const Eigen::Matrix<double, 7, 1> & get_tau_ext_hat_filtered() const
   {
-    mc_rtc::log::info("{} get_tau_ext_hat_filtered() was called, returning tau_ext_hat_filtered_: {}", logging, tau_ext_hat_filtered_.transpose()); //TODO
     return tau_ext_hat_filtered_;
   }
 
   inline void set_tau_ext_hat_filtered(std::array<double, 7> tau_ext_hat_filtered)
   {
     tau_ext_hat_filtered_ = Eigen::Matrix<double, 7, 1>(tau_ext_hat_filtered.data());
-    mc_rtc::log::info("{} set_tau_ext_hat_filtered() was called, providing tau_ext_hat_filtered_: {}", logging, tau_ext_hat_filtered_.transpose()); //TODO
   }
 
-  /** Return the estimated external wrench (moment,force) */
+  /** Return the estimated external wrench (moment,force) expressed relative to the base frame */
   inline const Eigen::Matrix<double, 6, 1> & get_O_F_ext_hat_K() const
   {
     return O_F_ext_hat_K_;
@@ -83,6 +82,23 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
     O_F_ext_hat_K_[0] = O_F_ext_hat_K[3];
     O_F_ext_hat_K_[1] = O_F_ext_hat_K[4];
     O_F_ext_hat_K_[2] = O_F_ext_hat_K[5];
+  }
+
+  /** Return the estimated external wrench (moment,force) expressed relative to the stiffness frame*/
+  inline const Eigen::Matrix<double, 6, 1> & get_K_F_ext_hat_K() const
+  {
+    return K_F_ext_hat_K_;
+  }
+
+  inline void set_K_F_ext_hat_K(std::array<double, 6> K_F_ext_hat_K)
+  {
+    //swap (force,moment) -> (moment,force)
+    K_F_ext_hat_K_[3] = K_F_ext_hat_K[0];
+    K_F_ext_hat_K_[4] = K_F_ext_hat_K[1];
+    K_F_ext_hat_K_[5] = K_F_ext_hat_K[2];
+    K_F_ext_hat_K_[0] = K_F_ext_hat_K[3];
+    K_F_ext_hat_K_[1] = K_F_ext_hat_K[4];
+    K_F_ext_hat_K_[2] = K_F_ext_hat_K[5];
   }
 
   /** Return the control command success rate */
@@ -146,6 +162,17 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
     cartesian_contact_[2] = cartesian_contact[5];
   }
 
+  /** Return singular values */
+  inline const Eigen::Matrix<double, 6, 1> & get_singular_values() const
+  {
+    return singular_values_;
+  }
+
+  inline void set_singular_values(Eigen::Matrix<double, 6, 1> singular_values)
+  {
+    singular_values_ = singular_values;
+  }
+
   // ####################################
   // METHODS RELATED TO ACTUATOR COMMANDS
   // ####################################
@@ -171,13 +198,17 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
     std::string logname = "PandaSensor_";
     logger.addLogEntry(logname + "tauexthatfiltered", 
       [this]() {
-        mc_rtc::log::info("logging tau_ext_hat_filtered_: {}", tau_ext_hat_filtered_.transpose()); //TODO
         return (Eigen::VectorXd) tau_ext_hat_filtered_; 
       }
     );
     logger.addLogEntry(logname + "OFexthatK", 
       [this]() {
         return (Eigen::VectorXd) O_F_ext_hat_K_; 
+      }
+    );
+    logger.addLogEntry(logname + "KFexthatK", 
+      [this]() {
+        return (Eigen::VectorXd) K_F_ext_hat_K_; 
       }
     );
     logger.addLogEntry(logname + "successrate", 
@@ -193,6 +224,11 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
     logger.addLogEntry(logname + "cartesiancontact", 
       [this]() {
         return (Eigen::VectorXd) cartesian_contact_; 
+      }
+    );
+    logger.addLogEntry(logname + "singularvalues", 
+      [this]() {
+        return (Eigen::VectorXd) singular_values_; 
       }
     );
     mc_rtc::log::info("PandaSensor device started to log data"); //TODO
@@ -216,11 +252,13 @@ private:
   //sensor signal related members
   Eigen::Matrix<double, 7, 1> tau_ext_hat_filtered_; //External torque, filtered. Unit: \f$[Nm]\f$.
   Eigen::Matrix<double, 6, 1> O_F_ext_hat_K_; //Estimated external wrench (force, torque) acting on stiffness frame, expressed relative to the base frame. Unit: \f$[N,N,N,Nm,Nm,Nm]\f$.
+  Eigen::Matrix<double, 6, 1> K_F_ext_hat_K_; //Estimated external wrench (force, torque) acting on stiffness frame, expressed relative to the stiffness frame. Unit: \f$[N,N,N,Nm,Nm,Nm]\f$.
   double control_command_success_rate_ = 1.0;
   double m_ee_ = 0; //Configured mass of the end effector.
   double m_load_ = 0; //Configured mass of the external load.
   Eigen::Matrix<double, 7, 1> joint_contact_; //Indicates which contact level is activated in which joint. After contact disappears, value turns to zero.
   Eigen::Matrix<double, 6, 1> cartesian_contact_; //Indicates which contact level is activated in which Cartesian dimension (x,y,z,R,P,Y). After contact disappears, the value turns to zero.
+  Eigen::Matrix<double, 6, 1> singular_values_;
 
   //actuator command related members
   bool stopRequested_=false;
