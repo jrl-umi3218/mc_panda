@@ -247,7 +247,7 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
 
   mc_rbdyn::DevicePtr clone() const override;
 
-private:
+private: //MAKE SURE ALL MEMBERS ARE COPIED IN THE CLONE METHOD!
   bool logging=false;
   //sensor signal related members
   Eigen::Matrix<double, 7, 1> tau_ext_hat_filtered_; //External torque, filtered. Unit: \f$[Nm]\f$.
