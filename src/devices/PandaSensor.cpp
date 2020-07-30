@@ -21,6 +21,7 @@ mc_rbdyn::DevicePtr PandaSensor::clone() const
   device->m_load_=m_load_;
   device->joint_contact_=joint_contact_;
   device->cartesian_contact_=cartesian_contact_;
+  device->singular_values_=singular_values_;
 
   //actuator command related members
   device->stopRequested_=stopRequested_;

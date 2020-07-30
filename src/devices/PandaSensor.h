@@ -249,6 +249,7 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
 
 private: //MAKE SURE ALL MEMBERS ARE COPIED IN THE CLONE METHOD!
   bool logging=false;
+  
   //sensor signal related members
   Eigen::Matrix<double, 7, 1> tau_ext_hat_filtered_; //External torque, filtered. Unit: \f$[Nm]\f$.
   Eigen::Matrix<double, 6, 1> O_F_ext_hat_K_; //Estimated external wrench (force, torque) acting on stiffness frame, expressed relative to the base frame. Unit: \f$[N,N,N,Nm,Nm,Nm]\f$.
