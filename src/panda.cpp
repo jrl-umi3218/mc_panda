@@ -50,16 +50,34 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
   _real_urdf = urdf_path;
   init(rbd::parsers::from_urdf_file(urdf_path, true));
 
+  //additional joint panda limits, see https://frankaemika.github.io/docs/control_parameters.html#constants 
   std::map<std::string, std::vector<double>> torqueDerivativeUpper;
   std::map<std::string, std::vector<double>> torqueDerivativeLower;
+  std::map<std::string, std::vector<double>> accelerationBoundsUpper;
+  std::map<std::string, std::vector<double>> accelerationBoundsLower;
   for(const auto & b : _bounds[0])
   {
     torqueDerivativeUpper[b.first] = std::vector<double>(b.second.size(), 1000);
     torqueDerivativeLower[b.first] = std::vector<double>(b.second.size(), -1000);
   }
-  //TODO add bounds for torque-derivative constraint
-  // _bounds.push_back(torqueDerivativeLower);
-  // _bounds.push_back(torqueDerivativeUpper);
+  accelerationBoundsLower = { {"panda_jointA1", {-15}}, 
+                              {"panda_jointA2", {-7.5}},
+                              {"panda_jointA3", {-10}},
+                              {"panda_jointA4", {-12.5}},
+                              {"panda_jointA5", {-15}},
+                              {"panda_jointA6", {-20}},
+                              {"panda_jointA7", {-20}} };
+  accelerationBoundsUpper = { {"panda_jointA1", {15}}, 
+                              {"panda_jointA2", {7.5}},
+                              {"panda_jointA3", {10}},
+                              {"panda_jointA4", {12.5}},
+                              {"panda_jointA5", {15}},
+                              {"panda_jointA6", {20}},
+                              {"panda_jointA7", {20}} };
+  _torqueDerivativeBounds.push_back(torqueDerivativeLower);
+  _torqueDerivativeBounds.push_back(torqueDerivativeUpper);
+  _accelerationBounds.push_back(accelerationBoundsLower);
+  _accelerationBounds.push_back(accelerationBoundsUpper);
 
   rsdf_dir = path + "/rsdf/" + name + "/";
   calib_dir = path + "/calib";
