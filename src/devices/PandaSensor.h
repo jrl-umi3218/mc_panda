@@ -194,55 +194,61 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
 
   inline void addToLogger(mc_rtc::Logger & logger)
   {
-    logging=true;
-    std::string logname = "PandaSensor_";
-    logger.addLogEntry(logname + "tauexthatfiltered", 
-      [this]() {
-        return (Eigen::VectorXd) tau_ext_hat_filtered_; 
-      }
-    );
-    logger.addLogEntry(logname + "OFexthatK", 
-      [this]() {
-        return (Eigen::VectorXd) O_F_ext_hat_K_; 
-      }
-    );
-    logger.addLogEntry(logname + "KFexthatK", 
-      [this]() {
-        return (Eigen::VectorXd) K_F_ext_hat_K_; 
-      }
-    );
-    logger.addLogEntry(logname + "successrate", 
-      [this]() {
-        return (double) control_command_success_rate_; 
-      }
-    );
-    logger.addLogEntry(logname + "jointcontact", 
-      [this]() {
-        return (Eigen::VectorXd) joint_contact_; 
-      }
-    );
-    logger.addLogEntry(logname + "cartesiancontact", 
-      [this]() {
-        return (Eigen::VectorXd) cartesian_contact_; 
-      }
-    );
-    logger.addLogEntry(logname + "singularvalues", 
-      [this]() {
-        return (Eigen::VectorXd) singular_values_; 
-      }
-    );
-    mc_rtc::log::info("PandaSensor device started to log data"); //TODO
+    if(logging==false)
+    {
+      logging=true;
+      std::string logname = "PandaSensor_";
+      logger.addLogEntry(logname + "tauexthatfiltered", 
+        [this]() {
+          return (Eigen::VectorXd) tau_ext_hat_filtered_; 
+        }
+      );
+      logger.addLogEntry(logname + "OFexthatK", 
+        [this]() {
+          return (Eigen::VectorXd) O_F_ext_hat_K_; 
+        }
+      );
+      logger.addLogEntry(logname + "KFexthatK", 
+        [this]() {
+          return (Eigen::VectorXd) K_F_ext_hat_K_; 
+        }
+      );
+      logger.addLogEntry(logname + "successrate", 
+        [this]() {
+          return (double) control_command_success_rate_; 
+        }
+      );
+      logger.addLogEntry(logname + "jointcontact", 
+        [this]() {
+          return (Eigen::VectorXd) joint_contact_; 
+        }
+      );
+      logger.addLogEntry(logname + "cartesiancontact", 
+        [this]() {
+          return (Eigen::VectorXd) cartesian_contact_; 
+        }
+      );
+      logger.addLogEntry(logname + "singularvalues", 
+        [this]() {
+          return (Eigen::VectorXd) singular_values_; 
+        }
+      );
+      mc_rtc::log::info("PandaSensor device started to log data"); //TODO
+    }
   }
   
   inline void removeFromLogger(mc_rtc::Logger & logger)
   {
-    logging=false;
-    std::string logname = "PandaSensor_";
-    logger.removeLogEntry(logname + "tauexthatfiltered");
-    logger.removeLogEntry(logname + "OFexthatK");
-    logger.removeLogEntry(logname + "successrate");
-    logger.removeLogEntry(logname + "jointcontact");
-    logger.removeLogEntry(logname + "cartesiancontact");
+    if(logging)
+    {
+      logging=false;
+      std::string logname = "PandaSensor_";
+      logger.removeLogEntry(logname + "tauexthatfiltered");
+      logger.removeLogEntry(logname + "OFexthatK");
+      logger.removeLogEntry(logname + "successrate");
+      logger.removeLogEntry(logname + "jointcontact");
+      logger.removeLogEntry(logname + "cartesiancontact");
+    }
   }
 
   mc_rbdyn::DevicePtr clone() const override;

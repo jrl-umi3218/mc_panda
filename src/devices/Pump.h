@@ -194,35 +194,45 @@ struct MC_RBDYN_DLLAPI Pump : public mc_rbdyn::Device
 
   inline void addToLogger(mc_rtc::Logger & logger)
   {
-    std::string logname = "Pump_";
-    logger.addLogEntry(logname + "status", 
-      [this]() {
-        return (bool) device_status_ok_; 
-      }
-    );
-    logger.addLogEntry(logname + "actualpower", 
-      [this]() {
-        return (uint16_t) actual_power_; 
-      }
-    );
-    logger.addLogEntry(logname + "vacuum", 
-      [this]() {
-        return (uint16_t) vacuum_; 
-      }
-    );
+    if(logging==false)
+    {
+      logging=true;
+      std::string logname = "Pump_";
+      logger.addLogEntry(logname + "status", 
+        [this]() {
+          return (bool) device_status_ok_; 
+        }
+      );
+      logger.addLogEntry(logname + "actualpower", 
+        [this]() {
+          return (uint16_t) actual_power_; 
+        }
+      );
+      logger.addLogEntry(logname + "vacuum", 
+        [this]() {
+          return (uint16_t) vacuum_; 
+        }
+      );
+    }
   }
 
   inline void removeFromLogger(mc_rtc::Logger & logger)
   {
-    std::string logname = "Pump_";
-    logger.removeLogEntry(logname + "status");
-    logger.removeLogEntry(logname + "actualpower");
-    logger.removeLogEntry(logname + "vacuum");
+    if(logging)
+    {
+      logging=false;
+      std::string logname = "Pump_";
+      logger.removeLogEntry(logname + "status");
+      logger.removeLogEntry(logname + "actualpower");
+      logger.removeLogEntry(logname + "vacuum");
+    }
   }
 
   mc_rbdyn::DevicePtr clone() const override;
 
 private: //MAKE SURE ALL MEMBERS ARE COPIED IN THE CLONE METHOD!
+  bool logging=false;
+  
   //sensor signal related members
   bool in_control_range_; // Vacuum value within in setpoint area.
   bool part_detached_; // The part has been detached after a suction cycle.

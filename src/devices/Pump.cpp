@@ -9,6 +9,8 @@ mc_rbdyn::DevicePtr Pump::clone() const
 {
   auto device = new Pump(name_, parent_, X_p_d());
   // do extra-copy of required fields
+  
+  device->logging=logging;
 
   //sensor signal related members
   device->in_control_range_=in_control_range_;
