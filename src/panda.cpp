@@ -111,8 +111,8 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
   // }
   // FIXME Do we have a pump convex hull?
 
-  const double i = 0.001; //0.01; //0.06;
-  const double s = 0.0005; //0.005; //0.02;
+  const double i = 0.015; //0.01;
+  const double s = 0.0075; //0.005;
   const double d = 0.;
   _minimalSelfCollisions = {mc_rbdyn::Collision("panda_linkA0*", "panda_linkA5*", i, s, d),
                             mc_rbdyn::Collision("panda_linkA1*", "panda_linkA5*", i, s, d),
