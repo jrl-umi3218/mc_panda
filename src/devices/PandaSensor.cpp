@@ -22,6 +22,10 @@ mc_rbdyn::DevicePtr PandaSensor::clone() const
   device->joint_contact_=joint_contact_;
   device->cartesian_contact_=cartesian_contact_;
   device->singular_values_=singular_values_;
+  device->joint_positions_=joint_positions_;
+  device->joint_velocities_=joint_velocities_;
+  device->joint_torques_=joint_torques_;
+  device->joint_dtorques_=joint_dtorques_;
 
   //actuator command related members
   device->stopRequested_=stopRequested_;

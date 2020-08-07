@@ -173,6 +173,51 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
     singular_values_ = singular_values;
   }
 
+  /** Return joint_positions */
+  inline const Eigen::Matrix<double, 7, 1> & get_joint_positions() const
+  {
+    return joint_positions_;
+  }
+
+  inline void set_joint_positions(std::array<double, 7> joint_positions)
+  {
+    joint_positions_ = Eigen::Matrix<double, 7, 1>(joint_positions.data());
+  }
+
+  /** Return joint_velocities */
+  inline const Eigen::Matrix<double, 7, 1> & get_joint_velocities() const
+  {
+    return joint_velocities_;
+  }
+
+  inline void set_joint_velocities(std::array<double, 7> joint_velocities)
+  {
+    joint_velocities_ = Eigen::Matrix<double, 7, 1>(joint_velocities.data());
+  }
+
+  /** Return joint_torques */
+  inline const Eigen::Matrix<double, 7, 1> & get_joint_torques() const
+  {
+    return joint_torques_;
+  }
+
+  inline void set_joint_torques(std::array<double, 7> joint_torques)
+  {
+    joint_torques_ = Eigen::Matrix<double, 7, 1>(joint_torques.data());
+  }
+
+  /** Return joint_dtorques */
+  inline const Eigen::Matrix<double, 7, 1> & get_joint_dtorques() const
+  {
+    return joint_dtorques_;
+  }
+
+  inline void set_joint_dtorques(std::array<double, 7> joint_dtorques)
+  {
+    joint_dtorques_ = Eigen::Matrix<double, 7, 1>(joint_dtorques.data());
+  }
+
+
   // ####################################
   // METHODS RELATED TO ACTUATOR COMMANDS
   // ####################################
@@ -233,6 +278,26 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
           return (Eigen::VectorXd) singular_values_; 
         }
       );
+      logger.addLogEntry(logname + "jointpositions", 
+        [this]() {
+          return (Eigen::VectorXd) joint_positions_; 
+        }
+      );
+      logger.addLogEntry(logname + "jointvelocities", 
+        [this]() {
+          return (Eigen::VectorXd) joint_velocities_; 
+        }
+      );
+      logger.addLogEntry(logname + "jointtorques", 
+        [this]() {
+          return (Eigen::VectorXd) joint_torques_; 
+        }
+      );
+      logger.addLogEntry(logname + "jointdtorques", 
+        [this]() {
+          return (Eigen::VectorXd) joint_dtorques_; 
+        }
+      );
       mc_rtc::log::info("PandaSensor device started to log data"); //TODO
     }
   }
@@ -248,6 +313,11 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
       logger.removeLogEntry(logname + "successrate");
       logger.removeLogEntry(logname + "jointcontact");
       logger.removeLogEntry(logname + "cartesiancontact");
+      logger.removeLogEntry(logname + "singularvalues");
+      logger.removeLogEntry(logname + "jointpositions");
+      logger.removeLogEntry(logname + "jointvelocities");
+      logger.removeLogEntry(logname + "jointtorques");
+      logger.removeLogEntry(logname + "jointdtorques");
     }
   }
 
@@ -266,6 +336,10 @@ private: //MAKE SURE ALL MEMBERS ARE COPIED IN THE CLONE METHOD!
   Eigen::Matrix<double, 7, 1> joint_contact_; //Indicates which contact level is activated in which joint. After contact disappears, value turns to zero.
   Eigen::Matrix<double, 6, 1> cartesian_contact_; //Indicates which contact level is activated in which Cartesian dimension (x,y,z,R,P,Y). After contact disappears, the value turns to zero.
   Eigen::Matrix<double, 6, 1> singular_values_;
+  Eigen::Matrix<double, 7, 1> joint_positions_; //Measured joint position. Unit: \f$[rad]\f$
+  Eigen::Matrix<double, 7, 1> joint_velocities_; //Measured joint velocity. Unit: \f$[\frac{rad}{s}]\f$
+  Eigen::Matrix<double, 7, 1> joint_torques_; //Measured link-side joint torque sensor signals. Unit: \f$[Nm]\f$
+  Eigen::Matrix<double, 7, 1> joint_dtorques_; //Derivative of measured link-side joint torque sensor signals. Unit: \f$[\frac{Nm}{s}]\f$
 
   //actuator command related members
   bool stopRequested_=false;
