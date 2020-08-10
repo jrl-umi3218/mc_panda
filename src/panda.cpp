@@ -94,22 +94,19 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
 
   _forceSensors.push_back(mc_rbdyn::ForceSensor("LeftHandForceSensor", "panda_linkA7", sva::PTransformd(mc_rbdyn::rpyToMat(3.14,0.0,0.0), Eigen::Vector3d(0, 0, -0.04435))));
 
-  //TODO remove _convexHull if simple collision shapes are used
-  // for(size_t i = 0; i < 8; ++i)
-  // {
-  //   std::string link = "panda_linkA" + std::to_string(i);
-  //   std::string cpath = path + "/convex/panda_default/panda_link" + std::to_string(i) + "-ch.txt";
-  //   _convexHull[link] = {link, cpath};
-  // }
-  // if(hand)
-  // {
-  //   _convexHull["panda_hand"] = {"panda_hand", path + "/convex/panda_hand/panda_hand-ch.txt"};
-  // }
-  // if(foot)
-  // {
-  //   _convexHull["panda_foot"] = {"panda_foot", path + "/convex/panda_foot/panda_foot-ch.txt"};
-  // }
-  // FIXME Do we have a pump convex hull?
+  if(hand)
+  {
+    _convexHull["panda_hand"] = {"panda_hand", path + "/convex/panda_hand/panda_hand-ch.txt"};
+  }
+  if(foot)
+  {
+    _convexHull["panda_foot"] = {"panda_foot", path + "/convex/panda_foot/panda_foot-ch.txt"};
+  }
+  if(pump)
+  {
+    // FIXME No pump convex ATM
+    //_convexHull["pump"] = {"panda_pump", path + "/convex/panda_pump/panda_pump-ch.txt"};
+  }
 
   const double i = 0.015; //0.01;
   const double s = 0.0075; //0.005;
@@ -133,10 +130,11 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
   /* Additional self collisions */
   if(pump)
   {
-    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA0", "pump", i, s, d));
-    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA1", "pump", i, s, d));
-    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA2", "pump", i, s, d));
-    _commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA3", "pump", i, s, d));
+    // FIXME No pump convex ATM
+    //_commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA0", "pump", i, s, d));
+    //_commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA1", "pump", i, s, d));
+    //_commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA2", "pump", i, s, d));
+    //_commonSelfCollisions.push_back(mc_rbdyn::Collision("panda_linkA3", "pump", i, s, d));
   }
   if(foot)
   {

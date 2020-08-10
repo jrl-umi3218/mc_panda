@@ -8,8 +8,8 @@ if("${XACRO}" STREQUAL "XACRO-NOTFOUND")
   message(FATAL_ERROR "Could not find xacro in your environment")
 endif()
 
-find_package(Boost REQUIRED COMPONENTS timer serialization filesystem)
 find_package(mc_rtc 1.4.0 REQUIRED)
+find_package(Franka REQUIRED)
 
 if(NOT EXISTS "${CMAKE_INSTALL_PREFIX}/share/panda_cnoid/panda_default.urdf")
   message(FATAL_ERROR "You need to install panda_cnoid before this project")
@@ -46,7 +46,7 @@ set_target_properties(mc_panda_devices PROPERTIES EXPORT_NAME devices)
 target_include_directories(mc_panda_devices PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
   $<INSTALL_INTERFACE:include>)
-target_link_libraries(mc_panda_devices PUBLIC mc_rtc::mc_rbdyn)
+target_link_libraries(mc_panda_devices PUBLIC mc_rtc::mc_rbdyn Franka::Franka)
 install(FILES ${devices_HDR} DESTINATION include/mc_panda/devices)
 install(TARGETS mc_panda_devices
   EXPORT mc_pandaTargets

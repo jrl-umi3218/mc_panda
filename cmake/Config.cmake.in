@@ -1,7 +1,8 @@
 @PACKAGE_INIT@
 
 include(CMakeFindDependencyMacro)
-find_package(mc_rtc REQUIRED)
+find_package(mc_rtc 1.4.0 REQUIRED)
+find_package(Franka REQUIRED)
 
 include("${CMAKE_CURRENT_LIST_DIR}/mc_pandaTargets.cmake")
 check_required_components(mc_panda)
