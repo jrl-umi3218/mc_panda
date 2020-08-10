@@ -75,6 +75,7 @@ bool Pump::connect(const std::string & ip)
     mc_rtc::log::error("{} imcompatible version with {}: {}", name_, ip, exc.what());
     return false;
   }
+  connected_ = true;
   stateThread_ = std::thread([this]() {
     while(connected_)
     {
