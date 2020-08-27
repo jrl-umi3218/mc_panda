@@ -68,7 +68,7 @@ void WaitForCollisionState::start(mc_control::fsm::Controller & ctl_)
 {
   addToLogger(ctl_.logger());
 
-  if(ctl_.robot().hasDevice<mc_panda::PandaSensor>(sensorDeviceName))
+  if(ctl_.robot(robname).hasDevice<mc_panda::PandaSensor>(sensorDeviceName))
   {
     sensorAvailable = true;
     mc_rtc::log::info("RobotModule has a PandaSensor named {}", sensorDeviceName);
@@ -78,7 +78,7 @@ void WaitForCollisionState::start(mc_control::fsm::Controller & ctl_)
     mc_rtc::log::warning("PandaSensor functionality will not be available");
   }
 
-  forceSensor = ctl_.robot().forceSensor("LeftHandForceSensor");
+  forceSensor = ctl_.robot(robname).forceSensor("LeftHandForceSensor");
 
   mc_rtc::log::success("WaitForCollisionState state start done");
 }
@@ -91,7 +91,7 @@ bool WaitForCollisionState::run(mc_control::fsm::Controller & ctl_)
   }
 
   if(sensorAvailable){
-    joint_contactVector_ = ctl_.robot().device<mc_panda::PandaSensor>(sensorDeviceName).get_tau_ext_hat_filtered();
+    joint_contactVector_ = ctl_.robot(robname).device<mc_panda::PandaSensor>(sensorDeviceName).get_tau_ext_hat_filtered();
     for(int i=0; i<7; i++){
       if(fabs(joint_contactVector_(i)) > joint_contactVector_thresholds_(i))
       {
@@ -103,7 +103,7 @@ bool WaitForCollisionState::run(mc_control::fsm::Controller & ctl_)
         return true;
       }
     }
-    cartesian_contactVector_ = ctl_.robot().device<mc_panda::PandaSensor>(sensorDeviceName).get_K_F_ext_hat_K();
+    cartesian_contactVector_ = ctl_.robot(robname).device<mc_panda::PandaSensor>(sensorDeviceName).get_K_F_ext_hat_K();
     for(int i=0; i<6; i++){
       if(fabs(cartesian_contactVector_(i)) > cartesian_contactVector_thresholds_(i))
       {
@@ -116,6 +116,7 @@ bool WaitForCollisionState::run(mc_control::fsm::Controller & ctl_)
       }
     }
   }
+  forceSensor = ctl_.robot(robname).forceSensor("LeftHandForceSensor");
   if(fabs(forceSensor.wrench().force().z()) > forceThreshold_)
   {
       mc_rtc::log::info("WaitForCollisionState detected a force().z() collision: abs({}) > {}", forceSensor.wrench().force().z(), forceThreshold_);

@@ -23,6 +23,7 @@ struct WaitForCollisionState : mc_control::fsm::State
 
     bool sensorAvailable = false;
     const std::string sensorDeviceName = "PandaSensor";
+    const std::string robname = "panda_pump";
 
     bool collisionDetected = false;
     Eigen::Matrix<double, 7, 1> joint_contactVector_;
