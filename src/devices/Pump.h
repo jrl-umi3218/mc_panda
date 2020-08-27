@@ -128,6 +128,7 @@ private:
   };
   // Only valid while a command is being executed
   Command command_;
+  uint last_command_id=0;
   // Store the last command success
   bool success_ = false;
   // Store the last command error (if any)

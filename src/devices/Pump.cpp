@@ -38,9 +38,10 @@ void Pump::addToLogger(mc_rtc::Logger & logger)
   logger.addLogEntry(name_ + "_device_status", [this]() { return static_cast<StatusInt>(state_.device_status); });
   logger.addLogEntry(name_ + "_actual_power", [this]() { return state_.actual_power; });
   logger.addLogEntry(name_ + "_vacuum", [this]() { return state_.vacuum; });
-  logger.addLogEntry(name_ + "_part_detached", [this]() { return state_.part_detached; });
-  logger.addLogEntry(name_ + "_part_present", [this]() { return state_.part_present; });
+  logger.addLogEntry(name_ + "_partDetached", [this]() { return state_.part_detached; });
+  logger.addLogEntry(name_ + "_partPresent", [this]() { return state_.part_present; });
   logger.addLogEntry(name_ + "_in_control_range", [this]() { return state_.in_control_range; });
+  logger.addLogEntry(name_ + "_lastCommandID", [this]() { return last_command_id; });
 }
 
 void Pump::removeFromLogger(mc_rtc::Logger & logger)
@@ -49,9 +50,10 @@ void Pump::removeFromLogger(mc_rtc::Logger & logger)
   logger.removeLogEntry(name_ + "_device_status");
   logger.removeLogEntry(name_ + "_actual_power");
   logger.removeLogEntry(name_ + "_vacuum");
-  logger.removeLogEntry(name_ + "_part_detached");
-  logger.removeLogEntry(name_ + "_part_present");
+  logger.removeLogEntry(name_ + "_partDetached");
+  logger.removeLogEntry(name_ + "_partPresent");
   logger.removeLogEntry(name_ + "_in_control_range");
+  logger.removeLogEntry(name_ + "_lastCommandID");
 }
 
 bool Pump::connect(const std::string & ip)
@@ -221,6 +223,7 @@ bool Pump::vacuum(uint8_t vacuum,
     "vacuum",
     [=]() { return gripper_->vacuum(vacuum, timeout, profile); }
   };
+  last_command_id = 1;
   return true;
 }
 
@@ -240,6 +243,7 @@ bool Pump::dropOff(std::chrono::milliseconds timeout)
     "dropOff",
     [=]() { return gripper_->dropOff(timeout); }
   };
+  last_command_id = 2;
   return true;
 }
 
@@ -249,17 +253,18 @@ bool Pump::stop()
   {
     return true;
   }
-  if(!busy_)
-  {
-    mc_rtc::log::error("No command is being executed on {}, nothing to stop", name_);
-    return false;
-  }
+  // if(!busy_)
+  // {
+  //   mc_rtc::log::error("No command is being executed on {}, nothing to stop", name_);
+  //   return false;
+  // }
   if(interrupted_)
   {
     mc_rtc::log::error("{} stop command has already been requested", name_);
     return false;
   }
   interrupted_ = true;
+  last_command_id = 3;
   return true;
 }
 
