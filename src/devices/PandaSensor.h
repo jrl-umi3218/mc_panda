@@ -222,7 +222,12 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
   // METHODS RELATED TO ACTUATOR COMMANDS
   // ####################################
 
-  /** Stop the robot */
+  /**
+   * Stops all currently running motions.
+   *
+   * If a control or motion generator loop is running in another thread, it will be preempted
+   * with a franka::ControlException.
+   */
   inline void requestStopCommand()
   {
     stopRequested_ = true;
@@ -232,6 +237,117 @@ struct MC_RBDYN_DLLAPI PandaSensor : public mc_rbdyn::Device
   {
     return stopRequested_;
   }
+
+  /**
+   * Changes the collision behavior.
+   *
+   * Set separate torque and force boundaries for acceleration/deceleration and constant velocity
+   * movement phases.
+   *
+   * Forces or torques between lower and upper threshold are shown as contacts in the RobotState.
+   * Forces or torques above the upper threshold are registered as collision and cause the robot to
+   * stop moving.
+   *
+   * @param[in] lower_torque_thresholds_acceleration Contact torque thresholds during
+   * acceleration/deceleration for each joint in \f$[Nm]\f$.
+   * @param[in] upper_torque_thresholds_acceleration Collision torque thresholds during
+   * acceleration/deceleration for each joint in \f$[Nm]\f$.
+   * @param[in] lower_torque_thresholds_nominal Contact torque thresholds for each joint
+   * in \f$[Nm]\f$.
+   * @param[in] upper_torque_thresholds_nominal Collision torque thresholds for each joint
+   * in \f$[Nm]\f$.
+   * @param[in] lower_force_thresholds_acceleration Contact force thresholds during
+   * acceleration/deceleration for \f$(x,y,z,R,P,Y)\f$ in \f$[N]\f$.
+   * @param[in] upper_force_thresholds_acceleration Collision force thresholds during
+   * acceleration/deceleration for \f$(x,y,z,R,P,Y)\f$ in \f$[N]\f$.
+   * @param[in] lower_force_thresholds_nominal Contact force thresholds for \f$(x,y,z,R,P,Y)\f$
+   * in \f$[N]\f$.
+   * @param[in] upper_force_thresholds_nominal Collision force thresholds for \f$(x,y,z,R,P,Y)\f$
+   * in \f$[N]\f$.
+   */
+  inline void setCollisionBehavior(const Eigen::Matrix<double, 7, 1>& lower_torque_thresholds_acceleration,
+                                  const Eigen::Matrix<double, 7, 1>& upper_torque_thresholds_acceleration,
+                                  const Eigen::Matrix<double, 7, 1>& lower_torque_thresholds_nominal,
+                                  const Eigen::Matrix<double, 7, 1>& upper_torque_thresholds_nominal,
+                                  const Eigen::Matrix<double, 6, 1>& lower_force_thresholds_acceleration,
+                                  const Eigen::Matrix<double, 6, 1>& upper_force_thresholds_acceleration,
+                                  const Eigen::Matrix<double, 6, 1>& lower_force_thresholds_nominal,
+                                  const Eigen::Matrix<double, 6, 1>& upper_force_thresholds_nominal)
+  {
+    // TODO
+  }
+
+  /**
+   * Changes the collision behavior.
+   *
+   * Set common torque and force boundaries for acceleration/deceleration and constant velocity
+   * movement phases.
+   *
+   * Forces or torques between lower and upper threshold are shown as contacts in the RobotState.
+   * Forces or torques above the upper threshold are registered as collision and cause the robot to
+   * stop moving.
+   *
+   * @param[in] lower_torque_thresholds Contact torque thresholds for each joint in \f$[Nm]\f$.
+   * @param[in] upper_torque_thresholds Collision torque thresholds for each joint in \f$[Nm]\f$.
+   * @param[in] lower_force_thresholds Contact force thresholds for \f$(x,y,z,R,P,Y)\f$
+   * in \f$[N]\f$.
+   * @param[in] upper_force_thresholds Collision force thresholds for \f$(x,y,z,R,P,Y)\f$
+   * in \f$[N]\f$.
+   */
+  inline void setCollisionBehavior(const Eigen::Matrix<double, 7, 1>& lower_torque_thresholds,
+                            const Eigen::Matrix<double, 7, 1>& upper_torque_thresholds,
+                            const Eigen::Matrix<double, 6, 1>& lower_force_thresholds,
+                            const Eigen::Matrix<double, 6, 1>& upper_force_thresholds)
+  {
+    // TODO
+  }
+
+  /**
+   * Sets the impedance for each joint in the internal controller.
+   *
+   * User-provided torques are not affected by this setting.
+   *
+   * @param[in] K_theta Joint impedance values \f$K_{\theta}\f$.
+   */
+  inline void setJointImpedance(const Eigen::Matrix<double, 7, 1>& K_theta)
+  {
+    // TODO
+  }
+
+  /**
+   * Sets the Cartesian impedance for (x, y, z, roll, pitch, yaw) in the internal controller.
+   *
+   * User-provided torques are not affected by this setting.
+   *
+   * @param[in] K_x Cartesian impedance values \f$K_x=(x \in [10,3000] \frac{N}{m}, y \in [10,3000]
+   * \frac{N}{m}, z \in [10,3000] \frac{N}{m}, R \in [1,300] \frac{Nm}{rad}, P \in [1,300]
+   * \frac{Nm}{rad}, Y \in [1,300]  \frac{Nm}{rad})\f$
+   */
+  inline void setCartesianImpedance(const Eigen::Matrix<double, 6, 1>& K_x)
+  {
+    // TODO
+  }
+
+  /**
+   * Sets dynamic parameters of a payload.
+   *
+   * @note
+   * This is not for setting end effector parameters, which have to be set in the administrator's
+   * interface.
+   *
+   * @param[in] load_mass Mass of the load in \f$[kg]\f$.
+   * @param[in] F_x_Cload Translation from flange to center of mass of load
+   * \f$^Fx_{C_\text{load}}\f$ in \f$[m]\f$.
+   * @param[in] load_inertia Inertia matrix \f$I_\text{load}\f$ in \f$[kg \times m^2]\f$,
+   * column-major.
+   */
+  inline void setLoad(double load_mass,
+               const Eigen::Matrix<double, 3, 1>& F_x_Cload,
+               const Eigen::Matrix<double, 9, 1>& load_inertia)
+  {
+    // TODO
+  }
+
 
   // ####################################
   // LOGGING
