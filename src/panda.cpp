@@ -155,7 +155,7 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
 
   _ref_joint_order = {"panda_jointA1", "panda_jointA2", "panda_jointA3", "panda_jointA4", "panda_jointA5", "panda_jointA6", "panda_jointA7"};
 
-  _default_attitude = {{}};
+  _default_attitude = {1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   //NOTE: this is a joint-space sensor and not attached to a specific Cartesian link with a certain transformation
   _devices.emplace_back(new mc_panda::PandaSensor("PandaSensor", "panda_linkA8", sva::PTransformd::Identity()));
