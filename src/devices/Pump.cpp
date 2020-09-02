@@ -205,9 +205,7 @@ const std::string & Pump::error() const
   return error_;
 }
 
-bool Pump::vacuum(uint8_t vacuum,
-                  std::chrono::milliseconds timeout,
-                  ProductionSetupProfile profile)
+bool Pump::vacuum(uint8_t vacuum, std::chrono::milliseconds timeout, ProductionSetupProfile profile)
 {
   if(!gripper_)
   {
@@ -219,10 +217,7 @@ bool Pump::vacuum(uint8_t vacuum,
     return false;
   }
   busy_ = true;
-  command_ = {
-    "vacuum",
-    [=]() { return gripper_->vacuum(vacuum, timeout, profile); }
-  };
+  command_ = {"vacuum", [=]() { return gripper_->vacuum(vacuum, timeout, profile); }};
   last_command_id = 1;
   return true;
 }
@@ -239,10 +234,7 @@ bool Pump::dropOff(std::chrono::milliseconds timeout)
     return false;
   }
   busy_ = true;
-  command_ = {
-    "dropOff",
-    [=]() { return gripper_->dropOff(timeout); }
-  };
+  command_ = {"dropOff", [=]() { return gripper_->dropOff(timeout); }};
   last_command_id = 2;
   return true;
 }

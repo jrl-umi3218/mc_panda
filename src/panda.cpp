@@ -1,6 +1,6 @@
 #include "panda.h"
-#include "devices/Pump.h"
 #include "devices/PandaDevice.h"
+#include "devices/Pump.h"
 
 #include "config.h"
 
@@ -43,14 +43,15 @@ inline static std::string pandaVariant(bool pump, bool foot, bool hand)
   return "";
 }
 
-PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModule(PANDA_DESCRIPTION_PATH, pandaVariant(pump, foot, hand))
+PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
+: RobotModule(PANDA_DESCRIPTION_PATH, pandaVariant(pump, foot, hand))
 {
   mc_rtc::log::success("PandaRobotModule loaded with name: {}", name);
   urdf_path = path + "/" + name + ".urdf";
   _real_urdf = urdf_path;
   init(rbd::parsers::from_urdf_file(urdf_path, true));
 
-  //additional joint panda limits, see https://frankaemika.github.io/docs/control_parameters.html#constants 
+  // additional joint panda limits, see https://frankaemika.github.io/docs/control_parameters.html#constants
   std::map<std::string, std::vector<double>> torqueDerivativeUpper;
   std::map<std::string, std::vector<double>> torqueDerivativeLower;
   std::map<std::string, std::vector<double>> accelerationBoundsUpper;
@@ -60,20 +61,12 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
     torqueDerivativeUpper[b.first] = std::vector<double>(b.second.size(), 1000);
     torqueDerivativeLower[b.first] = std::vector<double>(b.second.size(), -1000);
   }
-  accelerationBoundsLower = { {"panda_jointA1", {-15}}, 
-                              {"panda_jointA2", {-7.5}},
-                              {"panda_jointA3", {-10}},
-                              {"panda_jointA4", {-12.5}},
-                              {"panda_jointA5", {-15}},
-                              {"panda_jointA6", {-20}},
-                              {"panda_jointA7", {-20}} };
-  accelerationBoundsUpper = { {"panda_jointA1", {15}}, 
-                              {"panda_jointA2", {7.5}},
-                              {"panda_jointA3", {10}},
-                              {"panda_jointA4", {12.5}},
-                              {"panda_jointA5", {15}},
-                              {"panda_jointA6", {20}},
-                              {"panda_jointA7", {20}} };
+  accelerationBoundsLower = {{"panda_jointA1", {-15}},   {"panda_jointA2", {-7.5}}, {"panda_jointA3", {-10}},
+                             {"panda_jointA4", {-12.5}}, {"panda_jointA5", {-15}},  {"panda_jointA6", {-20}},
+                             {"panda_jointA7", {-20}}};
+  accelerationBoundsUpper = {{"panda_jointA1", {15}},   {"panda_jointA2", {7.5}}, {"panda_jointA3", {10}},
+                             {"panda_jointA4", {12.5}}, {"panda_jointA5", {15}},  {"panda_jointA6", {20}},
+                             {"panda_jointA7", {20}}};
   _torqueDerivativeBounds.push_back(torqueDerivativeLower);
   _torqueDerivativeBounds.push_back(torqueDerivativeUpper);
   _accelerationBounds.push_back(accelerationBoundsLower);
@@ -92,7 +85,9 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
   _stance["panda_jointA6"] = {mc_rtc::constants::toRad(120)};
   _stance["panda_jointA7"] = {mc_rtc::constants::toRad(0)};
 
-  _forceSensors.push_back(mc_rbdyn::ForceSensor("LeftHandForceSensor", "panda_linkA7", sva::PTransformd(mc_rbdyn::rpyToMat(3.14,0.0,0.0), Eigen::Vector3d(0, 0, -0.04435))));
+  _forceSensors.push_back(
+      mc_rbdyn::ForceSensor("LeftHandForceSensor", "panda_linkA7",
+                            sva::PTransformd(mc_rbdyn::rpyToMat(3.14, 0.0, 0.0), Eigen::Vector3d(0, 0, -0.04435))));
 
   if(hand)
   {
@@ -108,8 +103,8 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
     //_convexHull["pump"] = {"panda_pump", path + "/convex/panda_pump/panda_pump-ch.txt"};
   }
 
-  const double i = 0.015; //0.01;
-  const double s = 0.0075; //0.005;
+  const double i = 0.015; // 0.01;
+  const double s = 0.0075; // 0.005;
   const double d = 0.;
   _minimalSelfCollisions = {mc_rbdyn::Collision("panda_linkA0*", "panda_linkA5*", i, s, d),
                             mc_rbdyn::Collision("panda_linkA1*", "panda_linkA5*", i, s, d),
@@ -124,8 +119,7 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
                             mc_rbdyn::Collision("panda_linkA2*", "panda_linkA7*", i, s, d),
                             mc_rbdyn::Collision("panda_linkA3*", "panda_linkA7*", i, s, d),
                             // FIXME Is this last one needed?
-                            mc_rbdyn::Collision("panda_linkA5*", "panda_linkA7*", i, s, d)
-                            };
+                            mc_rbdyn::Collision("panda_linkA5*", "panda_linkA7*", i, s, d)};
 
   /* Additional self collisions */
   if(pump)
@@ -153,11 +147,12 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand) : RobotModul
 
   _commonSelfCollisions = _minimalSelfCollisions;
 
-  _ref_joint_order = {"panda_jointA1", "panda_jointA2", "panda_jointA3", "panda_jointA4", "panda_jointA5", "panda_jointA6", "panda_jointA7"};
+  _ref_joint_order = {"panda_jointA1", "panda_jointA2", "panda_jointA3", "panda_jointA4",
+                      "panda_jointA5", "panda_jointA6", "panda_jointA7"};
 
   _default_attitude = {1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-  //NOTE: this is a joint-space sensor and not attached to a specific Cartesian link with a certain transformation
+  // NOTE: this is a joint-space sensor and not attached to a specific Cartesian link with a certain transformation
   _devices.emplace_back(new mc_panda::PandaDevice());
   if(pump)
   {

@@ -30,8 +30,6 @@ bool PandaStop::run(mc_control::fsm::Controller & ctl_)
   return true;
 }
 
-void PandaStop::teardown(mc_control::fsm::Controller & ctl_)
-{
-}
+void PandaStop::teardown(mc_control::fsm::Controller & ctl_) {}
 
 EXPORT_SINGLE_STATE("PandaStop", PandaStop)

@@ -138,14 +138,11 @@ void PandaDevice::setCollisionBehavior(const std::array<double, 7> & lower_torqu
   {
     std::unique_lock<std::mutex> lock(commandMutex_);
     commands_.emplace("setCollisionBehavior", [=]() {
-      robot_->setCollisionBehavior(lower_torque_thresholds_acceleration,
-                                   upper_torque_thresholds_acceleration,
-                                   lower_torque_thresholds_nominal,
-                                   upper_torque_thresholds_nominal,
-                                   lower_force_thresholds_acceleration,
-                                   upper_force_thresholds_acceleration,
-                                   lower_force_thresholds_nominal,
-                                   upper_force_thresholds_nominal); });
+      robot_->setCollisionBehavior(lower_torque_thresholds_acceleration, upper_torque_thresholds_acceleration,
+                                   lower_torque_thresholds_nominal, upper_torque_thresholds_nominal,
+                                   lower_force_thresholds_acceleration, upper_force_thresholds_acceleration,
+                                   lower_force_thresholds_nominal, upper_force_thresholds_nominal);
+    });
   }
   commandCv_.notify_one();
 }
@@ -158,10 +155,9 @@ void PandaDevice::setCollisionBehavior(const std::array<double, 7> & lower_torqu
   {
     std::unique_lock<std::mutex> lock(commandMutex_);
     commands_.emplace("setCollisionBehavior", [=]() {
-      robot_->setCollisionBehavior(lower_torque_thresholds,
-                                   upper_torque_thresholds,
-                                   lower_force_thresholds,
-                                   upper_force_thresholds); });
+      robot_->setCollisionBehavior(lower_torque_thresholds, upper_torque_thresholds, lower_force_thresholds,
+                                   upper_force_thresholds);
+    });
   }
   commandCv_.notify_one();
 }

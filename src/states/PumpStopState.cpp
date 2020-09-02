@@ -12,7 +12,8 @@ void PumpStopState::start(mc_control::fsm::Controller & ctl_)
   {
     mc_rtc::log::info("RobotModule has a Pump named {}", pumpDeviceName);
   }
-  else{
+  else
+  {
     mc_rtc::log::warning("RobotModule does not have a Pump named {}", pumpDeviceName);
     mc_rtc::log::error_and_throw<std::runtime_error>("Pump functionality is not available");
   }
@@ -23,26 +24,31 @@ bool PumpStopState::run(mc_control::fsm::Controller & ctl_)
 {
   // franka::VacuumGripperState state = ctl_.robot(robname).device<mc_panda::Pump>(pumpDeviceName).state();
   // mc_panda::Pump::Status status = ctl_.robot(robname).device<mc_panda::Pump>(pumpDeviceName).status();
-  
+
   bool busy = ctl_.robot(robname).device<mc_panda::Pump>(pumpDeviceName).busy();
-  if(busy){
+  if(busy)
+  {
     return false;
   }
-  if(command_requested){
+  if(command_requested)
+  {
     bool success = ctl_.robot(robname).device<mc_panda::Pump>(pumpDeviceName).success();
-    if(success){
+    if(success)
+    {
       output("OK");
       return true;
     }
-    else{
-      //try again if not successful
-      command_requested=false;
+    else
+    {
+      // try again if not successful
+      command_requested = false;
       std::string error = ctl_.robot(robname).device<mc_panda::Pump>(pumpDeviceName).error();
       mc_rtc::log::warning("pump stop command not successful: {}", error);
       return false;
     }
   }
-  else{
+  else
+  {
     mc_rtc::log::info("requesting pump stop command");
     ctl_.robot(robname).device<mc_panda::Pump>(pumpDeviceName).stop();
     command_requested = true;

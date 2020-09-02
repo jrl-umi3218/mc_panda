@@ -33,8 +33,7 @@ struct MC_RBDYN_DLLAPI PandaDevice : public mc_rbdyn::Device
    * @param name Name of the PandaDevice
    *
    */
-  inline PandaDevice()
-  : mc_rbdyn::Device(name)
+  inline PandaDevice() : mc_rbdyn::Device(name)
   {
     type_ = "PandaDevice";
   }
@@ -73,9 +72,7 @@ struct MC_RBDYN_DLLAPI PandaDevice : public mc_rbdyn::Device
   mc_rbdyn::DevicePtr clone() const override;
 
   /** Set dynamics parameter of a payload, see franka::Robot documentation for details */
-  void setLoad(double load_mass,
-               const std::array<double, 3> & F_x_Cload,
-               const std::array<double, 9> & load_inertia);
+  void setLoad(double load_mass, const std::array<double, 3> & F_x_Cload, const std::array<double, 9> & load_inertia);
 
   /** Changes the collision behavior, see franka::Robot documentation for details */
   void setCollisionBehavior(const std::array<double, 7> & lower_torque_thresholds_acceleration,
@@ -109,7 +106,9 @@ private:
   struct Command
   {
     template<typename Callable>
-    Command(const char * name, Callable && cb) : name(name), command(cb) {}
+    Command(const char * name, Callable && cb) : name(name), command(cb)
+    {
+    }
     /** For logging purpose */
     std::string name;
     /** Command callback */

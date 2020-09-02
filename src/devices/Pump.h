@@ -128,7 +128,7 @@ private:
   };
   // Only valid while a command is being executed
   Command command_;
-  uint last_command_id=0;
+  uint last_command_id = 0;
   // Store the last command success
   bool success_ = false;
   // Store the last command error (if any)
@@ -140,7 +140,8 @@ typedef std::vector<Pump, Eigen::aligned_allocator<Pump>> PumpVector;
 } // namespace mc_panda
 
 static_assert(std::is_same<typename std::underlying_type<mc_panda::Pump::Status>::type,
-                           typename std::underlying_type<franka::VacuumGripperDeviceStatus>::type>::value, "Something is wrong");
+                           typename std::underlying_type<franka::VacuumGripperDeviceStatus>::type>::value,
+              "Something is wrong");
 
 inline bool operator==(const mc_panda::Pump::Status & lhs, const franka::VacuumGripperDeviceStatus & rhs)
 {
