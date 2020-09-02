@@ -1,9 +1,7 @@
 #pragma once
 
-#include <mc_control/CompletionCriteria.h>
 #include <mc_control/fsm/Controller.h>
 #include <mc_control/fsm/State.h>
-#include <mc_panda/devices/Pump.h>
 
 struct PumpStopState : mc_control::fsm::State
 {

@@ -1,5 +1,6 @@
 #include "PumpStopState.h"
-#include <mc_tasks/MetaTaskLoader.h>
+
+#include <devices/Pump.h>
 
 void PumpStopState::configure(const mc_rtc::Configuration & config)
 {

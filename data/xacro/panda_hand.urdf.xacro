@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="panda_hand">
+
+  <xacro:arg name="gazebo" default="true"/>
+
+  <xacro:include filename="@CMAKE_BINARY_DIR@/xacro/main.xacro">
+  </xacro:include>
+  <xacro:include filename="@CMAKE_BINARY_DIR@/xacro/panda.xacro">
+  </xacro:include>
+  <xacro:include filename="$(find franka_description)/robots/hand.xacro"/>
+
+  <xacro:main connected_to='world'/>
+  <xacro:panda xyz="0 0 0" connected_to='main_link' safety_distance="0.03"/>
+  <xacro:hand ns="panda" rpy="0 0 ${-pi/4}" connected_to="panda_link8"/>
+</robot>

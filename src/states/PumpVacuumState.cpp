@@ -1,4 +1,7 @@
 #include "PumpVacuumState.h"
+
+#include <devices/Pump.h>
+
 #include <mc_tasks/MetaTaskLoader.h>
 
 void PumpVacuumState::configure(const mc_rtc::Configuration & config)

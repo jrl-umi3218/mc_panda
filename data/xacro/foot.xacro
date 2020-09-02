@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="panda_foot_part">
+  <xacro:macro name="foot" params="connected_to:='' ns:='' rpy:='0 0 0' xyz:='0 0 0' ">
+    <xacro:unless value="${connected_to == ''}">
+      <joint name="${ns}_foot_joint" type="fixed">
+        <parent link="${connected_to}"/>
+        <child link="${ns}_foot"/>
+        <origin xyz="${xyz}" rpy="${rpy}"/>
+      </joint>
+    </xacro:unless>
+
+    <xacro:arg name="gazebo" default="true"/>
+    <xacro:if value="$(arg gazebo)">
+      <gazebo reference="${ns}_foot"/>
+    </xacro:if>
+
+    <link name="${ns}_foot">
+      <inertial>
+        <mass value="0.1" />
+        <origin xyz="0 0 0.01" rpy="0 0 0" />
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001" />
+      </inertial>
+      <visual>
+        <origin xyz="${xyz}" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="file://@MESHES_DESTINATION@/foot.stl" />
+        </geometry>
+        <material name="">
+          <color rgba="1 1 1 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="${xyz}" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="file://@MESHES_DESTINATION@/foot.stl" />
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+</robot>
+

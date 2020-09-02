@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="panda_main_part">
+  <xacro:macro name="main" params="arm_id:='main' package_name:='franka_description' connected_to:='' xyz:='0 0 0' rpy:='0 0 0'">
+    <xacro:unless value="${not connected_to}">
+      <link name="${connected_to}"/>
+      <joint name="${arm_id}_joint_${connected_to}" type="fixed">
+        <parent link="${connected_to}"/>
+        <child link="${arm_id}_link"/>
+        <origin rpy="${rpy}" xyz="${xyz}"/>
+      </joint>
+    </xacro:unless>
+
+    <xacro:arg name="gazebo" default="true"/>
+    <xacro:if value="$(arg gazebo)">
+      <!-- Gazebo Tags -->
+      <xacro:include filename="main.gazebo.xacro"/>
+    </xacro:if>
+
+    <link name="${arm_id}_link">
+    </link>
+
+  </xacro:macro>
+</robot>

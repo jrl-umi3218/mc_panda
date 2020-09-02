@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="panda_pump_part">
+  <xacro:macro name="pump" params="connected_to:='' ns:='' rpy:='0 0 0' xyz:='0 0 0' ">
+    <xacro:unless value="${connected_to == ''}">
+      <joint name="${ns}_pump_joint" type="fixed">
+        <parent link="${connected_to}"/>
+        <child link="${ns}_pump"/>
+        <origin xyz="${xyz}" rpy="${rpy}"/>
+      </joint>
+    </xacro:unless>
+
+    <xacro:arg name="gazebo" default="true"/>
+    <xacro:if value="$(arg gazebo)">
+      <gazebo reference="${ns}_pump"/>
+    </xacro:if>
+
+    <link name="${ns}_pump">
+      <inertial>
+        <mass value="1.01" />
+        <origin xyz="0 0 0.063" rpy="0 0 0" />
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001" />
+      </inertial>
+      <visual>
+        <origin xyz="${xyz}" rpy="3.14 0 0"/>
+        <geometry>
+          <mesh filename="file://@MESHES_DESTINATION@/pump.dae" />
+        </geometry>
+        <material name="">
+          <color rgba="1 1 1 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="${xyz}" rpy="3.14 0 0"/>
+        <geometry>
+          <mesh filename="file://@MESHES_DESTINATION@/pump.dae" />
+        </geometry>
+      </collision>
+<!--  scale="0.001 0.001 0.001" -->
+    </link>
+  </xacro:macro>
+</robot>
+
