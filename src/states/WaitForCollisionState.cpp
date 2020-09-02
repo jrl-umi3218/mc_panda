@@ -1,12 +1,15 @@
 #include "WaitForCollisionState.h"
+
 #include <mc_tasks/MetaTaskLoader.h>
+
+#include <devices/PandaDevice.h>
+
+#include <spdlog/fmt/bundled/ranges.h>
 
 void WaitForCollisionState::configure(const mc_rtc::Configuration & config)
 {
-  joint_contactVector_ = Eigen::Matrix<double, 7, 1> ::Zero();
   joint_contactVector_thresholds_ = Eigen::Matrix<double, 7, 1> ::Ones() * std::numeric_limits<double>::infinity();
-  
-  cartesian_contactVector_ = Eigen::Matrix<double, 6, 1> ::Zero();
+
   cartesian_contactVector_thresholds_ = Eigen::Matrix<double, 6, 1> ::Ones()*  std::numeric_limits<double>::infinity();
 
   forceThreshold_ = std::numeric_limits<double>::infinity();
@@ -61,25 +64,18 @@ void WaitForCollisionState::configure(const mc_rtc::Configuration & config)
   joint_contactVector_thresholds_log_ = Eigen::Matrix<double, 14, 1> ::Zero();
   joint_contactVector_thresholds_log_ << joint_contactVector_thresholds_, -1*joint_contactVector_thresholds_;
   cartesian_contactVector_thresholds_log_ = Eigen::Matrix<double, 12, 1> ::Zero();
-  cartesian_contactVector_thresholds_log_ << cartesian_contactVector_thresholds_, -1*cartesian_contactVector_thresholds_; 
+  cartesian_contactVector_thresholds_log_ << cartesian_contactVector_thresholds_, -1*cartesian_contactVector_thresholds_;
 }
 
 void WaitForCollisionState::start(mc_control::fsm::Controller & ctl_)
 {
   addToLogger(ctl_.logger());
 
-  if(ctl_.robot(robname).hasDevice<mc_panda::PandaSensor>(sensorDeviceName))
+  const auto & sensorDeviceName = mc_panda::PandaDevice::name;
+  if(ctl_.robot(robname).hasDevice<mc_panda::PandaDevice>(sensorDeviceName))
   {
     sensorAvailable = true;
-    mc_rtc::log::info("RobotModule has a PandaSensor named {}", sensorDeviceName);
   }
-  else{
-    mc_rtc::log::warning("RobotModule does not have a PandaSensor named {}", sensorDeviceName);
-    mc_rtc::log::warning("PandaSensor functionality will not be available");
-  }
-
-  forceSensor = ctl_.robot(robname).forceSensor("LeftHandForceSensor");
-
   mc_rtc::log::success("WaitForCollisionState state start done");
 }
 
@@ -91,24 +87,25 @@ bool WaitForCollisionState::run(mc_control::fsm::Controller & ctl_)
   }
 
   if(sensorAvailable){
-    joint_contactVector_ = ctl_.robot(robname).device<mc_panda::PandaSensor>(sensorDeviceName).get_tau_ext_hat_filtered();
+    const auto & sensorDeviceName = mc_panda::PandaDevice::name;
+    const auto & joint_contactVector_ = ctl_.robot(robname).device<mc_panda::PandaDevice>(sensorDeviceName).state().tau_ext_hat_filtered;
     for(int i=0; i<7; i++){
-      if(fabs(joint_contactVector_(i)) > joint_contactVector_thresholds_(i))
+      if(fabs(joint_contactVector_[i]) > joint_contactVector_thresholds_(i))
       {
-        mc_rtc::log::info("WaitForCollisionState detected a joint-space collision for index {}: abs({}) > {}", i, joint_contactVector_(i), joint_contactVector_thresholds_(i));
-        mc_rtc::log::info("WaitForCollisionState joint_contactVector_: {}", joint_contactVector_.transpose());
+        mc_rtc::log::info("WaitForCollisionState detected a joint-space collision for index {}: abs({}) > {}", i, joint_contactVector_[i], joint_contactVector_thresholds_(i));
+        mc_rtc::log::info("WaitForCollisionState joint_contactVector_: {}", joint_contactVector_);
         mc_rtc::log::info("Completed WaitForCollisionState");
         collisionDetected = true;
         output("OK");
         return true;
       }
     }
-    cartesian_contactVector_ = ctl_.robot(robname).device<mc_panda::PandaSensor>(sensorDeviceName).get_K_F_ext_hat_K();
+    const auto & cartesian_contactVector_ = ctl_.robot(robname).device<mc_panda::PandaDevice>(sensorDeviceName).state().K_F_ext_hat_K;
     for(int i=0; i<6; i++){
-      if(fabs(cartesian_contactVector_(i)) > cartesian_contactVector_thresholds_(i))
+      if(fabs(cartesian_contactVector_[i]) > cartesian_contactVector_thresholds_(i))
       {
-        mc_rtc::log::info("WaitForCollisionState detected a cartesian-space collision for index {}: abs({}) > {}", i, cartesian_contactVector_(i), cartesian_contactVector_thresholds_(i));
-        mc_rtc::log::info("WaitForCollisionState cartesian_contactVector_: {}", cartesian_contactVector_.transpose());
+        mc_rtc::log::info("WaitForCollisionState detected a cartesian-space collision for index {}: abs({}) > {}", i, cartesian_contactVector_[i], cartesian_contactVector_thresholds_(i));
+        mc_rtc::log::info("WaitForCollisionState cartesian_contactVector_: {}", cartesian_contactVector_);
         mc_rtc::log::info("Completed WaitForCollisionState");
         collisionDetected = true;
         output("OK");
@@ -116,7 +113,7 @@ bool WaitForCollisionState::run(mc_control::fsm::Controller & ctl_)
       }
     }
   }
-  forceSensor = ctl_.robot(robname).forceSensor("LeftHandForceSensor");
+  const auto & forceSensor = ctl_.robot(robname).forceSensor("LeftHandForceSensor");
   if(fabs(forceSensor.wrench().force().z()) > forceThreshold_)
   {
       mc_rtc::log::info("WaitForCollisionState detected a force().z() collision: abs({}) > {}", forceSensor.wrench().force().z(), forceThreshold_);
@@ -125,7 +122,6 @@ bool WaitForCollisionState::run(mc_control::fsm::Controller & ctl_)
       output("OK");
       return true;
   }
-  // mc_rtc::log::info("WaitForCollisionState did not detect a collision, current force is: {}", forceSensor.wrench().force().transpose());
   return false;
 }
 
@@ -139,14 +135,14 @@ void WaitForCollisionState::teardown(mc_control::fsm::Controller & ctl_)
 void WaitForCollisionState::addToLogger(mc_rtc::Logger & logger)
 {
   std::string logname = "WaitForCollisionState_";
-  logger.addLogEntry(logname + "tauexthatfilteredThresholds", 
+  logger.addLogEntry(logname + "tauexthatfilteredThresholds",
     [this]() {
-      return (Eigen::VectorXd) joint_contactVector_thresholds_log_; 
+      return (Eigen::VectorXd) joint_contactVector_thresholds_log_;
     }
   );
-  logger.addLogEntry(logname + "OFexthatKThresholds", 
+  logger.addLogEntry(logname + "OFexthatKThresholds",
     [this]() {
-      return (Eigen::VectorXd) cartesian_contactVector_thresholds_log_; 
+      return (Eigen::VectorXd) cartesian_contactVector_thresholds_log_;
     }
   );
   mc_rtc::log::info("PandaSensor device started to log data");
