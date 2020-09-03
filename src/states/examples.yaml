@@ -1,0 +1,62 @@
+---
+# Example states configuration for mc_panda defined states
+
+# PandaStop example
+PandaStopExample:
+  base: PandaStop
+  # Name of the robot that will be affected by this state, defaults to the main robot
+  robot: panda_hand
+
+# PandaWaitForCollision example
+PandaWaitForCollisionExample:
+  base: PandaWaitForCollision
+  # Name of the robot that will be affected by this state, defaults to the main robot
+  robot: panda_hand
+  # Joint contact thresholds, a contact is detected if the (absolute) joint
+  # contact reading on the corresponding joint exceeds this value
+  # Default: all values are + infinity
+  jointContactThresholds: [.inf, .inf, .inf, .inf, 1.5, 0.5, 0.1]
+  # Cartesian contact thresholds, a contact is detected if the (absolute)
+  # cartesian contact reading on the corresponding axis exceeds this value
+  # Default: all values are + infinity
+  cartesianContactThresholds: [.inf, .inf, .inf, 5, 5, 20]
+  # Pressure threshold, a contact is detected if the (absolute) reading on the
+  # force sensor Z-axis exceed this value
+  # Default: +infinity
+  pressureThreshold: 15.5
+
+# PumpStop example
+PumpStopExample:
+  base: PumpStop
+  # Name of the robot that will be affected by this state, defaults to the main robot
+  robot: panda_hand
+
+# PumpDropOff example
+PumpDropOffExample:
+  base: PumpDropOff
+  # Name of the robot that will be affected by this state, defaults to the main robot
+  robot: panda_hand
+  # Timeout specified in milliseconds
+  # Default: 1000 ms (i.e. 1 second)
+  timeout: 2000
+  # If true waits for the command completion
+  # Default: true
+  waiting: true
+
+# PumpVacuum example
+PumpVacuumExample:
+  base: PumpVacuum
+  # Name of the robot that will be affected by this state, defaults to the main robot
+  robot: panda_hand
+  # Vacuum pressure specified in 10 * mbar
+  # Default: 100 (i.e. 1 bar)
+  vacuum: 200
+  # Timeout specified in milliseconds
+  # Default: 1000 ms (i.e. 1 second)
+  timeout: 1000
+  # Production setup profile, must be one of [kP0, kP1, kP2, kP3]
+  # Default: kP0
+  profile: kP1
+  # If true waits for the command completion
+  # Default: true
+  waiting: true
