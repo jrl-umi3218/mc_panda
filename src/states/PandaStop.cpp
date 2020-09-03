@@ -4,6 +4,9 @@
 
 #include <devices/Robot.h>
 
+namespace mc_panda
+{
+
 void PandaStop::configure(const mc_rtc::Configuration & config)
 {
   config("robot", robot_);
@@ -15,12 +18,15 @@ void PandaStop::start(mc_control::fsm::Controller & ctl_)
   {
     robot_ = ctl_.robot().name();
   }
-  auto & robot = ctl_.robot(robot_);
-  const auto & device = mc_panda::Robot::name;
-  sensorAvailable_ = robot.hasDevice<mc_panda::Robot>(device);
-  if(sensorAvailable_)
+  auto robot = Robot::get(ctl_.robot(robot_));
+  if(robot)
   {
-    ctl_.robot().device<mc_panda::Robot>(device).stop();
+    robot->stop();
+  }
+  else
+  {
+    mc_rtc::log::warning("[{}] State started with robot {} which does not have an mc_panda::Robot device", name(),
+                         robot_);
   }
   output("OK");
 }
@@ -32,4 +38,6 @@ bool PandaStop::run(mc_control::fsm::Controller & ctl_)
 
 void PandaStop::teardown(mc_control::fsm::Controller & ctl_) {}
 
-EXPORT_SINGLE_STATE("PandaStop", PandaStop)
+} // namespace mc_panda
+
+EXPORT_SINGLE_STATE("PandaStop", mc_panda::PandaStop)

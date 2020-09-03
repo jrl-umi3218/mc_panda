@@ -2,6 +2,9 @@
 
 #include <mc_control/fsm/State.h>
 
+namespace mc_panda
+{
+
 /** Stop all commands execution on the related panda robot */
 struct PandaStop : mc_control::fsm::State
 {
@@ -15,5 +18,6 @@ struct PandaStop : mc_control::fsm::State
 
 private:
   std::string robot_;
-  bool sensorAvailable_;
 };
+
+} // namespace mc_panda
