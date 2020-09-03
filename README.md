@@ -8,7 +8,7 @@ This package provides the following robot modules for [mc_rtc]:
 - `PandaPump`: panda robot with the standard panda pump
 
 It also contains the definition of two devices:
-- `mc_panda::PandaDevice` is an asynchronous interface for `franka::Robot` commands and `franka::RobotState` which are connected to the actual robot when [mc_franka] is running the controller;
+- `mc_panda::Robot` is an asynchronous interface for `franka::Robot` commands and `franka::RobotState` which are connected to the actual robot when [mc_franka] is running the controller;
 - `mc_panda::Pump` is an asynchronous interface for `franka::VacuumGripper` which is connected to the pump when [mc_franka] is running the controller. It is only available in the `PandaPump` variant.
 
 And it provides some panda-specific FSM states:

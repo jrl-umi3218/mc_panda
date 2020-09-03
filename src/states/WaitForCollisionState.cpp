@@ -2,7 +2,7 @@
 
 #include <mc_tasks/MetaTaskLoader.h>
 
-#include <devices/PandaDevice.h>
+#include <devices/Robot.h>
 
 #include <spdlog/fmt/bundled/ranges.h>
 
@@ -82,8 +82,8 @@ void WaitForCollisionState::start(mc_control::fsm::Controller & ctl_)
 {
   addToLogger(ctl_.logger());
 
-  const auto & sensorDeviceName = mc_panda::PandaDevice::name;
-  if(ctl_.robot(robname).hasDevice<mc_panda::PandaDevice>(sensorDeviceName))
+  const auto & sensorDeviceName = mc_panda::Robot::name;
+  if(ctl_.robot(robname).hasDevice<mc_panda::Robot>(sensorDeviceName))
   {
     sensorAvailable = true;
   }
@@ -100,9 +100,9 @@ bool WaitForCollisionState::run(mc_control::fsm::Controller & ctl_)
 
   if(sensorAvailable)
   {
-    const auto & sensorDeviceName = mc_panda::PandaDevice::name;
+    const auto & sensorDeviceName = mc_panda::Robot::name;
     const auto & joint_contactVector_ =
-        ctl_.robot(robname).device<mc_panda::PandaDevice>(sensorDeviceName).state().tau_ext_hat_filtered;
+        ctl_.robot(robname).device<mc_panda::Robot>(sensorDeviceName).state().tau_ext_hat_filtered;
     for(int i = 0; i < 7; i++)
     {
       if(fabs(joint_contactVector_[i]) > joint_contactVector_thresholds_(i))
@@ -117,7 +117,7 @@ bool WaitForCollisionState::run(mc_control::fsm::Controller & ctl_)
       }
     }
     const auto & cartesian_contactVector_ =
-        ctl_.robot(robname).device<mc_panda::PandaDevice>(sensorDeviceName).state().K_F_ext_hat_K;
+        ctl_.robot(robname).device<mc_panda::Robot>(sensorDeviceName).state().K_F_ext_hat_K;
     for(int i = 0; i < 6; i++)
     {
       if(fabs(cartesian_contactVector_[i]) > cartesian_contactVector_thresholds_(i))

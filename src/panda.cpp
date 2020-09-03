@@ -1,6 +1,6 @@
 #include "panda.h"
-#include "devices/PandaDevice.h"
 #include "devices/Pump.h"
+#include "devices/Robot.h"
 
 #include "config.h"
 
@@ -148,7 +148,7 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
   _default_attitude = {1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   // NOTE: this is a joint-space sensor and not attached to a specific Cartesian link with a certain transformation
-  _devices.emplace_back(new mc_panda::PandaDevice());
+  _devices.emplace_back(new mc_panda::Robot());
   if(pump)
   {
     /* Pump device */

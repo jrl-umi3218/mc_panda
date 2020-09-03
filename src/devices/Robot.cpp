@@ -1,11 +1,11 @@
-#include "PandaDevice.h"
+#include "Robot.h"
 
 #include <franka/exception.h>
 
 namespace mc_panda
 {
 
-PandaDevice::~PandaDevice()
+Robot::~Robot()
 {
   if(robot_)
   {
@@ -13,18 +13,18 @@ PandaDevice::~PandaDevice()
   }
 }
 
-mc_rbdyn::DevicePtr PandaDevice::clone() const
+mc_rbdyn::DevicePtr Robot::clone() const
 {
   if(robot_)
   {
-    mc_rtc::log::error_and_throw<std::runtime_error>("Cannot clone a connected PandaDevice");
+    mc_rtc::log::error_and_throw<std::runtime_error>("Cannot clone a connected Robot");
   }
-  auto device = new PandaDevice();
+  auto device = new Robot();
   device->state_ = state_;
   return mc_rbdyn::DevicePtr(device);
 }
 
-void PandaDevice::addToLogger(mc_rtc::Logger & logger, const std::string & prefix)
+void Robot::addToLogger(mc_rtc::Logger & logger, const std::string & prefix)
 {
   logger.addLogEntry(prefix + "_tau_ext_hat_filtered",
                      [this]() -> const std::array<double, 7> & { return state_.tau_ext_hat_filtered; });
@@ -43,7 +43,7 @@ void PandaDevice::addToLogger(mc_rtc::Logger & logger, const std::string & prefi
   // FIXME Previous version logged singular values which does not match anythin in franka::RobotState
 }
 
-void PandaDevice::removeFromLogger(mc_rtc::Logger & logger, const std::string & prefix)
+void Robot::removeFromLogger(mc_rtc::Logger & logger, const std::string & prefix)
 {
   logger.removeLogEntry(prefix + "_tau_ext_hat_filtered");
   logger.removeLogEntry(prefix + "_O_F_ext_hat_K");
@@ -54,7 +54,7 @@ void PandaDevice::removeFromLogger(mc_rtc::Logger & logger, const std::string & 
   logger.removeLogEntry(prefix + "_torque_derivatives");
 }
 
-void PandaDevice::connect(franka::Robot * robot)
+void Robot::connect(franka::Robot * robot)
 {
   std::unique_lock<std::mutex> lock(robotMutex_);
   if(robot_)
@@ -99,7 +99,7 @@ void PandaDevice::connect(franka::Robot * robot)
   });
 }
 
-void PandaDevice::disconnect()
+void Robot::disconnect()
 {
   if(!robot_)
   {
@@ -115,9 +115,9 @@ void PandaDevice::disconnect()
   commandThread_.join();
 }
 
-void PandaDevice::setLoad(double load_mass,
-                          const std::array<double, 3> & F_x_Cload,
-                          const std::array<double, 9> & load_inertia)
+void Robot::setLoad(double load_mass,
+                    const std::array<double, 3> & F_x_Cload,
+                    const std::array<double, 9> & load_inertia)
 {
   {
     std::unique_lock<std::mutex> lock(commandMutex_);
@@ -126,14 +126,14 @@ void PandaDevice::setLoad(double load_mass,
   commandCv_.notify_one();
 }
 
-void PandaDevice::setCollisionBehavior(const std::array<double, 7> & lower_torque_thresholds_acceleration,
-                                       const std::array<double, 7> & upper_torque_thresholds_acceleration,
-                                       const std::array<double, 7> & lower_torque_thresholds_nominal,
-                                       const std::array<double, 7> & upper_torque_thresholds_nominal,
-                                       const std::array<double, 6> & lower_force_thresholds_acceleration,
-                                       const std::array<double, 6> & upper_force_thresholds_acceleration,
-                                       const std::array<double, 6> & lower_force_thresholds_nominal,
-                                       const std::array<double, 6> & upper_force_thresholds_nominal)
+void Robot::setCollisionBehavior(const std::array<double, 7> & lower_torque_thresholds_acceleration,
+                                 const std::array<double, 7> & upper_torque_thresholds_acceleration,
+                                 const std::array<double, 7> & lower_torque_thresholds_nominal,
+                                 const std::array<double, 7> & upper_torque_thresholds_nominal,
+                                 const std::array<double, 6> & lower_force_thresholds_acceleration,
+                                 const std::array<double, 6> & upper_force_thresholds_acceleration,
+                                 const std::array<double, 6> & lower_force_thresholds_nominal,
+                                 const std::array<double, 6> & upper_force_thresholds_nominal)
 {
   {
     std::unique_lock<std::mutex> lock(commandMutex_);
@@ -147,10 +147,10 @@ void PandaDevice::setCollisionBehavior(const std::array<double, 7> & lower_torqu
   commandCv_.notify_one();
 }
 
-void PandaDevice::setCollisionBehavior(const std::array<double, 7> & lower_torque_thresholds,
-                                       const std::array<double, 7> & upper_torque_thresholds,
-                                       const std::array<double, 6> & lower_force_thresholds,
-                                       const std::array<double, 6> & upper_force_thresholds)
+void Robot::setCollisionBehavior(const std::array<double, 7> & lower_torque_thresholds,
+                                 const std::array<double, 7> & upper_torque_thresholds,
+                                 const std::array<double, 6> & lower_force_thresholds,
+                                 const std::array<double, 6> & upper_force_thresholds)
 {
   {
     std::unique_lock<std::mutex> lock(commandMutex_);
@@ -162,7 +162,7 @@ void PandaDevice::setCollisionBehavior(const std::array<double, 7> & lower_torqu
   commandCv_.notify_one();
 }
 
-void PandaDevice::setJointImpedance(const std::array<double, 7> & K_theta)
+void Robot::setJointImpedance(const std::array<double, 7> & K_theta)
 {
   {
     std::unique_lock<std::mutex> lock(commandMutex_);
@@ -171,7 +171,7 @@ void PandaDevice::setJointImpedance(const std::array<double, 7> & K_theta)
   commandCv_.notify_one();
 }
 
-void PandaDevice::setCartesianImpedance(const std::array<double, 6> & K_x)
+void Robot::setCartesianImpedance(const std::array<double, 6> & K_x)
 {
   {
     std::unique_lock<std::mutex> lock(commandMutex_);
@@ -180,7 +180,7 @@ void PandaDevice::setCartesianImpedance(const std::array<double, 6> & K_x)
   commandCv_.notify_one();
 }
 
-void PandaDevice::stop()
+void Robot::stop()
 {
   {
     std::unique_lock<std::mutex> lock(commandMutex_);

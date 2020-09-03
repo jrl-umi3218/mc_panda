@@ -2,7 +2,7 @@
 
 #include <mc_control/fsm/Controller.h>
 
-#include <devices/PandaDevice.h>
+#include <devices/Robot.h>
 
 void PandaStop::configure(const mc_rtc::Configuration & config)
 {
@@ -16,11 +16,11 @@ void PandaStop::start(mc_control::fsm::Controller & ctl_)
     robot_ = ctl_.robot().name();
   }
   auto & robot = ctl_.robot(robot_);
-  const auto & device = mc_panda::PandaDevice::name;
-  sensorAvailable_ = robot.hasDevice<mc_panda::PandaDevice>(device);
+  const auto & device = mc_panda::Robot::name;
+  sensorAvailable_ = robot.hasDevice<mc_panda::Robot>(device);
   if(sensorAvailable_)
   {
-    ctl_.robot().device<mc_panda::PandaDevice>(device).stop();
+    ctl_.robot().device<mc_panda::Robot>(device).stop();
   }
   output("OK");
 }

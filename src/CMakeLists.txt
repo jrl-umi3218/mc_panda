@@ -2,11 +2,11 @@ configure_file(config.h.in "${CMAKE_CURRENT_BINARY_DIR}/include/config.h")
 
 # Panda custom devices library
 set(devices_HDR
-  devices/PandaDevice.h
+  devices/Robot.h
   devices/Pump.h
 )
 set(devices_SRC
-  devices/PandaDevice.cpp
+  devices/Robot.cpp
   devices/Pump.cpp
 )
 

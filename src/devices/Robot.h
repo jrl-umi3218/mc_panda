@@ -24,21 +24,27 @@ namespace mc_panda
  * values and the commands are no-op. The connection status can be checked.
  *
  */
-struct MC_RBDYN_DLLAPI PandaDevice : public mc_rbdyn::Device
+struct MC_RBDYN_DLLAPI Robot : public mc_rbdyn::Device
 {
-  static constexpr auto name = "PandaDevice";
+  static constexpr auto name = "Robot";
+
+  /** Get the device associated to the provided robot
+   *
+   * \returns nullptr if the device does not exist in this robot
+   */
+  static Robot * get(mc_rbdyn::Robot & robot);
 
   /** Constructor
    *
-   * @param name Name of the PandaDevice
+   * @param name Name of the Robot
    *
    */
-  inline PandaDevice() : mc_rbdyn::Device(name)
+  inline Robot() : mc_rbdyn::Device(name)
   {
-    type_ = "PandaDevice";
+    type_ = "Robot";
   }
 
-  ~PandaDevice() override;
+  ~Robot() override;
 
   inline bool connected() const noexcept
   {
