@@ -38,6 +38,10 @@ Original xacro files from:
 
 Pump model was downloaded from [Schmalz](https://www.schmalz.com/en/10.03.01.00314)
 
+[![I.AM.Logo](https://i-am-project.eu/templates/yootheme/cache/iam_logo-horizontaal_XL-9e4a8a2a.png)](https://i-am-project.eu/index.php)
+
+This work was partially supported by the Research Project I.AM. through the European Union H2020 program under GA 871899.
+
 [mc_rtc]: https://github.com/jrl-umi3218/mc_rtc
 [mc_franka]: https://github.com/jrl-umi3218/mc_franka
 [franka_ros]: https://github.com/frankaemika/franka_ros
