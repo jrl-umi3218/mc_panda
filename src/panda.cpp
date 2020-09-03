@@ -152,7 +152,7 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
   if(pump)
   {
     /* Pump device */
-    _devices.emplace_back(new mc_panda::Pump("Pump", "panda_link8", sva::PTransformd::Identity()));
+    _devices.emplace_back(new mc_panda::Pump("panda_link8", sva::PTransformd::Identity()));
   }
 
   /* Grippers */

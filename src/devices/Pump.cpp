@@ -1,12 +1,13 @@
 #include "Pump.h"
 
+#include <mc_rbdyn/Robot.h>
+
 #include <franka/exception.h>
 
 namespace mc_panda
 {
 
-Pump::Pump(const std::string & name, const std::string & parent, const sva::PTransformd & X_p_d)
-: mc_rbdyn::Device(name, parent, X_p_d)
+Pump::Pump(const std::string & parent, const sva::PTransformd & X_p_d) : mc_rbdyn::Device(Pump::name, parent, X_p_d)
 {
   type_ = "Pump";
 }
@@ -16,9 +17,13 @@ Pump::~Pump()
   disconnect();
 }
 
-void Pump::name(const std::string & name)
+Pump * Pump::get(mc_rbdyn::Robot & robot)
 {
-  name_ = name;
+  if(robot.hasDevice<Pump>(Pump::name))
+  {
+    return &(robot.device<Pump>(Pump::name));
+  }
+  return nullptr;
 }
 
 mc_rbdyn::DevicePtr Pump::clone() const
@@ -27,33 +32,33 @@ mc_rbdyn::DevicePtr Pump::clone() const
   {
     mc_rtc::log::error_and_throw<std::runtime_error>("Cannot copy a connected Pump");
   }
-  auto ret = new Pump(name_, parent_, X_p_s_);
+  auto ret = new Pump(parent_, X_p_s_);
   ret->state_ = this->state_;
   return mc_rbdyn::DevicePtr(ret);
 }
 
-void Pump::addToLogger(mc_rtc::Logger & logger)
+void Pump::addToLogger(mc_rtc::Logger & logger, const std::string & prefix)
 {
-  logger.addLogEntry(name_ + "_status", [this]() { return state_.device_status != Status::disconnected; });
-  logger.addLogEntry(name_ + "_device_status", [this]() { return static_cast<StatusInt>(state_.device_status); });
-  logger.addLogEntry(name_ + "_actual_power", [this]() { return state_.actual_power; });
-  logger.addLogEntry(name_ + "_vacuum", [this]() { return state_.vacuum; });
-  logger.addLogEntry(name_ + "_partDetached", [this]() { return state_.part_detached; });
-  logger.addLogEntry(name_ + "_partPresent", [this]() { return state_.part_present; });
-  logger.addLogEntry(name_ + "_in_control_range", [this]() { return state_.in_control_range; });
-  logger.addLogEntry(name_ + "_lastCommandID", [this]() { return last_command_id; });
+  logger.addLogEntry(prefix + "_status", [this]() { return state_.device_status != Status::disconnected; });
+  logger.addLogEntry(prefix + "_device_status", [this]() { return static_cast<StatusInt>(state_.device_status); });
+  logger.addLogEntry(prefix + "_actual_power", [this]() { return state_.actual_power; });
+  logger.addLogEntry(prefix + "_vacuum", [this]() { return state_.vacuum; });
+  logger.addLogEntry(prefix + "_part_detached", [this]() { return state_.part_detached; });
+  logger.addLogEntry(prefix + "_part_present", [this]() { return state_.part_present; });
+  logger.addLogEntry(prefix + "_in_control_range", [this]() { return state_.in_control_range; });
+  logger.addLogEntry(prefix + "_last_command_id", [this]() { return last_command_id_; });
 }
 
-void Pump::removeFromLogger(mc_rtc::Logger & logger)
+void Pump::removeFromLogger(mc_rtc::Logger & logger, const std::string & prefix)
 {
-  logger.removeLogEntry(name_ + "_status");
-  logger.removeLogEntry(name_ + "_device_status");
-  logger.removeLogEntry(name_ + "_actual_power");
-  logger.removeLogEntry(name_ + "_vacuum");
-  logger.removeLogEntry(name_ + "_partDetached");
-  logger.removeLogEntry(name_ + "_partPresent");
-  logger.removeLogEntry(name_ + "_in_control_range");
-  logger.removeLogEntry(name_ + "_lastCommandID");
+  logger.removeLogEntry(prefix + "_status");
+  logger.removeLogEntry(prefix + "_device_status");
+  logger.removeLogEntry(prefix + "_actual_power");
+  logger.removeLogEntry(prefix + "_vacuum");
+  logger.removeLogEntry(prefix + "_part_detached");
+  logger.removeLogEntry(prefix + "_part_present");
+  logger.removeLogEntry(prefix + "_in_control_range");
+  logger.removeLogEntry(prefix + "_last_command_id");
 }
 
 bool Pump::connect(const std::string & ip)
@@ -218,7 +223,7 @@ bool Pump::vacuum(uint8_t vacuum, std::chrono::milliseconds timeout, ProductionS
   }
   busy_ = true;
   command_ = {"vacuum", [=]() { return gripper_->vacuum(vacuum, timeout, profile); }};
-  last_command_id = 1;
+  last_command_id_ = 1;
   return true;
 }
 
@@ -235,7 +240,7 @@ bool Pump::dropOff(std::chrono::milliseconds timeout)
   }
   busy_ = true;
   command_ = {"dropOff", [=]() { return gripper_->dropOff(timeout); }};
-  last_command_id = 2;
+  last_command_id_ = 2;
   return true;
 }
 
@@ -245,18 +250,13 @@ bool Pump::stop()
   {
     return true;
   }
-  // if(!busy_)
-  // {
-  //   mc_rtc::log::error("No command is being executed on {}, nothing to stop", name_);
-  //   return false;
-  // }
   if(interrupted_)
   {
     mc_rtc::log::error("{} stop command has already been requested", name_);
     return false;
   }
   interrupted_ = true;
-  last_command_id = 3;
+  last_command_id_ = 3;
   return true;
 }
 

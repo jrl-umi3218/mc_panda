@@ -17,6 +17,8 @@ namespace mc_panda
  * interface provided by libfranka */
 struct MC_RBDYN_DLLAPI Pump : public mc_rbdyn::Device
 {
+  static constexpr auto name = "Pump";
+
   using ProductionSetupProfile = franka::VacuumGripper::ProductionSetupProfile;
 
   using StatusInt = std::underlying_type<franka::VacuumGripperDeviceStatus>::type;
@@ -30,19 +32,20 @@ struct MC_RBDYN_DLLAPI Pump : public mc_rbdyn::Device
     disconnected = static_cast<int>(kRed + 1)
   };
 
+  /** Get the pump associated to the provided robot
+   *
+   * \returns nullptr if the device does not exist in this robot
+   */
+  static Pump * get(mc_rbdyn::Robot & robot);
+
   /** Constructor
    *
    * @param name Name of the pump
    *
    */
-  Pump(const std::string & name, const std::string & parent, const sva::PTransformd & X_p_d);
+  Pump(const std::string & parent, const sva::PTransformd & X_p_d);
 
   ~Pump() override;
-
-  using mc_rbdyn::Device::name;
-
-  /** Rename the pump */
-  void name(const std::string & name);
 
   /** Connect the pump device to an actual pump, the pump operations are then done in a background thread*/
   bool connect(const std::string & ip);
@@ -94,9 +97,9 @@ struct MC_RBDYN_DLLAPI Pump : public mc_rbdyn::Device
    */
   bool stop();
 
-  void addToLogger(mc_rtc::Logger & logger);
+  void addToLogger(mc_rtc::Logger & logger, const std::string & prefix);
 
-  void removeFromLogger(mc_rtc::Logger & logger);
+  void removeFromLogger(mc_rtc::Logger & logger, const std::string & prefix);
 
   mc_rbdyn::DevicePtr clone() const override;
 
@@ -128,7 +131,8 @@ private:
   };
   // Only valid while a command is being executed
   Command command_;
-  uint last_command_id = 0;
+  // Represent the last command executed
+  uint8_t last_command_id_ = 0;
   // Store the last command success
   bool success_ = false;
   // Store the last command error (if any)
