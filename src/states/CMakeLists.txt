@@ -3,7 +3,7 @@ macro(add_panda_fsm_state NAME)
   target_link_libraries(${NAME} PUBLIC mc_panda::devices)
 endmacro()
 
-add_panda_fsm_state(WaitForCollisionState)
+add_panda_fsm_state(PandaWaitForCollisionState)
 add_panda_fsm_state(PandaStop)
 add_panda_fsm_state(PumpVacuumState)
 add_panda_fsm_state(PumpDropOffState)
