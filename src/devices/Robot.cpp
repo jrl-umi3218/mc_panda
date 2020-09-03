@@ -1,5 +1,7 @@
 #include "Robot.h"
 
+#include <mc_rbdyn/Robot.h>
+
 #include <franka/exception.h>
 
 namespace mc_panda
@@ -11,6 +13,15 @@ Robot::~Robot()
   {
     disconnect();
   }
+}
+
+Robot * Robot::get(mc_rbdyn::Robot & robot)
+{
+  if(robot.hasDevice<Robot>(Robot::name))
+  {
+    return &(robot.device<Robot>(Robot::name));
+  }
+  return nullptr;
 }
 
 mc_rbdyn::DevicePtr Robot::clone() const
