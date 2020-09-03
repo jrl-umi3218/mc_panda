@@ -1,6 +1,8 @@
 #pragma once
 
 #include <mc_rbdyn/Device.h>
+
+#include <mc_rtc/Configuration.h>
 #include <mc_rtc/log/Logger.h>
 
 #include <franka/vacuum_gripper.h>
@@ -166,3 +168,59 @@ inline bool operator!=(const franka::VacuumGripperDeviceStatus & lhs, const mc_p
 {
   return rhs != lhs;
 }
+
+namespace mc_rtc
+{
+
+template<>
+struct MC_RBDYN_DLLAPI ConfigurationLoader<mc_panda::Pump::ProductionSetupProfile>
+{
+  using PSP = mc_panda::Pump::ProductionSetupProfile;
+  static PSP load(const Configuration & c)
+  {
+    std::string p = c;
+    if(p == "kP0")
+    {
+      return PSP::kP0;
+    }
+    if(p == "kP1")
+    {
+      return PSP::kP1;
+    }
+    if(p == "kP2")
+    {
+      return PSP::kP2;
+    }
+    if(p == "kP3")
+    {
+      return PSP::kP3;
+    }
+    auto msg = fmt::format(
+        "Could not convert stored configuration into a ProductionSetupProfile, got {}, expected kP[0-3]", p);
+    mc_rtc::log::critical(msg);
+    throw Configuration::Exception(msg, c);
+  }
+
+  static Configuration save(const PSP & profile)
+  {
+    Configuration out;
+    switch(profile)
+    {
+      case PSP::kP0:
+        out.add("profile", "kP0");
+        break;
+      case PSP::kP1:
+        out.add("profile", "kP1");
+        break;
+      case PSP::kP2:
+        out.add("profile", "kP2");
+        break;
+      case PSP::kP3:
+        out.add("profile", "kP3");
+        break;
+    };
+    return out("profile");
+  }
+};
+
+} // namespace mc_rtc

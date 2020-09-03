@@ -1,81 +1,96 @@
 #include "PumpVacuumState.h"
 
-#include <devices/Pump.h>
-
-#include <mc_tasks/MetaTaskLoader.h>
+namespace mc_panda
+{
 
 void PumpVacuumState::configure(const mc_rtc::Configuration & config)
 {
-  mc_rtc::log::success("PumpVacuumState configure done");
+  config("robot", robot_);
+  config("vacuum", vacuum_);
+  config("timeout", timeout_);
+  config("waiting", waiting_);
+  config("profile", profile_);
 }
 
 void PumpVacuumState::start(mc_control::fsm::Controller & ctl_)
 {
-  if(ctl_.robot(robname).hasDevice<mc_panda::Pump>(pumpDeviceName))
+  auto & robot = robot_.empty() ? ctl_.robot() : ctl_.robot(robot_);
+  pump_ = Pump::get(robot);
+  if(!pump_)
   {
-    mc_rtc::log::info("RobotModule has a Pump named {}", pumpDeviceName);
+    mc_rtc::log::warning("[{}] State started with robot {} which does not have an mc_panda::Pump device", name(),
+                         robot_);
+    output("NoPump");
+    return;
   }
-  else
+  auto max_vacuum = std::numeric_limits<uint8_t>::max();
+  if(vacuum_ > max_vacuum)
   {
-    mc_rtc::log::warning("RobotModule does not have a Pump named {}", pumpDeviceName);
-    mc_rtc::log::error_and_throw<std::runtime_error>("Pump functionality is not available");
+    mc_rtc::log::warning("[{}] Configured pressure is {} but maximum allowed pressure is {}", vacuum_, max_vacuum);
+    vacuum_ = max_vacuum;
   }
-  mc_rtc::log::success("PumpVacuumState start done");
+  request();
 }
 
 bool PumpVacuumState::run(mc_control::fsm::Controller & ctl_)
 {
-  // franka::VacuumGripperState state = ctl_.robot(robname).device<mc_panda::Pump>(pumpDeviceName).state();
-  // mc_panda::Pump::Status status = ctl_.robot(robname).device<mc_panda::Pump>(pumpDeviceName).status();
-
-  bool busy = ctl_.robot(robname).device<mc_panda::Pump>(pumpDeviceName).busy();
-  if(busy)
+  if(!pump_ || (!waiting_ && requested_) || done_)
   {
-    mc_rtc::log::warning("pump is busy, can not request vacuum command");
+    return true;
+  }
+
+  // Pump still busy from a previous command
+  if(!requested_)
+  {
+    return request();
+  }
+  // Pump busy from this command
+  if(pump_->busy())
+  {
     return false;
   }
-  if(command_requested)
+
+  done_ = true;
+  if(pump_->success())
   {
-    if(succeedImmediately)
-    {
-      output("OK");
-      return true;
-    }
-    else
-    {
-      bool success = ctl_.robot(robname).device<mc_panda::Pump>(pumpDeviceName).success();
-      if(success)
-      {
-        mc_rtc::log::warning("pump vacuum command was successful");
-        output("OK");
-        return true;
-      }
-      else
-      {
-        // try again if not successful
-        command_requested = false;
-        std::string error = ctl_.robot(robname).device<mc_panda::Pump>(pumpDeviceName).error();
-        mc_rtc::log::warning("pump vacuum command not successful: {}", error);
-        return false;
-      }
-    }
+    output("OK");
   }
   else
   {
-    const uint8_t vacuum = 100; // unit [10*mbar]
-    const std::chrono::milliseconds timeout = std::chrono::milliseconds(2000); // unit ms
-    mc_rtc::log::info("requesting pump vacuum command: vacuum={}, timeout={}", vacuum, std::to_string(timeout.count()));
-    ctl_.robot(robname).device<mc_panda::Pump>(pumpDeviceName).vacuum(vacuum, timeout);
-    command_requested = true;
-    mc_rtc::log::info("pump vacuum command requested");
-    return false;
+    output("VacuumFailure");
   }
-  return false;
+  return true;
 }
 
-void PumpVacuumState::teardown(mc_control::fsm::Controller & ctl_)
+void PumpVacuumState::teardown(mc_control::fsm::Controller & ctl_) {}
+
+bool PumpVacuumState::request()
 {
-  mc_rtc::log::info("PumpVacuumState teardown done");
+  if(!pump_->busy())
+  {
+    requested_ = pump_->vacuum(vacuum_, std::chrono::milliseconds(timeout_), profile_);
+    if(requested_)
+    {
+      mc_rtc::log::info("[{}] Pump vacuum requested with timeout: {}ms, vacuum strength: {}mbar", name(), timeout_,
+                        10 * vacuum_);
+      if(!waiting_)
+      {
+        output("OK");
+      }
+    }
+  }
+  return requested_ && !waiting_;
 }
 
-EXPORT_SINGLE_STATE("PumpVacuumState", PumpVacuumState)
+void PumpVacuumState::stop(mc_control::fsm::Controller & ctl)
+{
+  if(pump_)
+  {
+    mc_rtc::log::info("[{}] Send interrupt command to the pump", name());
+    pump_->stop();
+  }
+}
+
+} // namespace mc_panda
+
+EXPORT_SINGLE_STATE("PumpVacuum", mc_panda::PumpVacuumState)
