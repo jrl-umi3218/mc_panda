@@ -3,6 +3,15 @@
 #include <mc_control/fsm/Controller.h>
 #include <mc_control/fsm/State.h>
 
+namespace mc_panda
+{
+
+/** Send a stop command to the pump
+ *
+ * If the robot has no pump the state always outputs "NoPump"
+ *
+ * Otherwise the state always outputs "OK"
+ */
 struct PumpStopState : mc_control::fsm::State
 {
   void configure(const mc_rtc::Configuration & config) override;
@@ -14,9 +23,7 @@ struct PumpStopState : mc_control::fsm::State
   void teardown(mc_control::fsm::Controller & ctl) override;
 
 private:
-  mc_rtc::Configuration state_conf_;
-
-  const std::string pumpDeviceName = "Pump";
-  const std::string robname = "panda_pump";
-  bool command_requested = false;
+  std::string robot_; // robot which has the pump
 };
+
+} // namespace mc_panda
