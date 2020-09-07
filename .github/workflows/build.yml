@@ -62,7 +62,7 @@ jobs:
         sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key 892EA6EE273707C6495A6FB6220D644C64666806
         sudo sh -c 'echo "deb https://dl.bintray.com/gergondet/multi-contact-head $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/multi-contact.list'
         sudo apt-get update
-        sudo apt-get install -y libmc-rtc-dev mc-rtc-utils python3-mc-rtc ros-${ROS_DISTRO}-mc-rtc-plugin mc-openrtm jvrc-choreonoid
+        sudo apt-get install -y libmc-rtc-dev mc-rtc-utils python3-mc-rtc ros-${ROS_DISTRO}-mc-rtc-plugin mc-openrtm jvrc-choreonoid libcnoid-dev
     - name: Build and test
       uses: jrl-umi3218/github-actions/build-cmake-project@master
       with:
