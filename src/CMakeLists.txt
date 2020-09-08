@@ -28,6 +28,7 @@ install(TARGETS mc_panda_devices
 # Panda robot module library
 add_robot(panda panda.cpp panda.h)
 target_link_libraries(panda PRIVATE mc_panda::devices)
+target_include_directories(panda PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 # Panda custom states library
 add_subdirectory(states)
