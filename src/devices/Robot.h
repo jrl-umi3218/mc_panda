@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mc_panda/devices/api.h>
+
 #include <mc_rbdyn/Device.h>
 
 #include <mc_rtc/log/Logger.h>
@@ -24,7 +26,7 @@ namespace mc_panda
  * values and the commands are no-op. The connection status can be checked.
  *
  */
-struct MC_RBDYN_DLLAPI Robot : public mc_rbdyn::Device
+struct MC_PANDA_DEVICES_DLLAPI Robot : public mc_rbdyn::Device
 {
   static constexpr auto name = "Robot";
 

@@ -8,7 +8,7 @@
 namespace mc_robots
 {
 
-struct MC_ROBOTS_DLLAPI PandaRobotModule : public mc_rbdyn::RobotModule
+struct ROBOT_MODULE_API PandaRobotModule : public mc_rbdyn::RobotModule
 {
 public:
   PandaRobotModule(bool pump, bool foot, bool hand);

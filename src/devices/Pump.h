@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mc_panda/devices/api.h>
+
 #include <mc_rbdyn/Device.h>
 
 #include <mc_rtc/Configuration.h>
@@ -17,7 +19,7 @@ namespace mc_panda
 
 /** This device is an asynchronous wrapper around the synchronous VacuumGripper
  * interface provided by libfranka */
-struct MC_RBDYN_DLLAPI Pump : public mc_rbdyn::Device
+struct MC_PANDA_DEVICES_DLLAPI Pump : public mc_rbdyn::Device
 {
   static constexpr auto name = "Pump";
 
