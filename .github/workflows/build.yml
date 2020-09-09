@@ -1,4 +1,4 @@
-name: CI of mc-panda
+name: CI of mc_panda
 
 on:
   push:
@@ -75,4 +75,4 @@ jobs:
         slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_TOKEN }}
         slack-channel: '#ci'
         slack-text: >
-          [mc-panda] Build *${{ matrix.os }}/${{ matrix.build-type }}* failed on ${{ github.ref }}
+          [mc_panda] Build *${{ matrix.os }}/${{ matrix.build-type }}* failed on ${{ github.ref }}

@@ -1,8 +1,8 @@
-mc-panda
-=======
+mc_panda
+========
 
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-green.svg)](https://opensource.org/licenses/BSD-2-Clause)
-[![CI](https://github.com/gergondet/mc-panda/workflows/CI%20of%20mc-panda/badge.svg?branch=master)](https://github.com/gergondet/mc-panda/actions?query=workflow%3A%22CI+of+mc-panda%22)
+[![CI](https://github.com/jrl-umi3218/mc_panda/workflows/CI%20of%20mc_panda/badge.svg?branch=master)](https://github.com/jrl-umi3218/mc_panda/actions?query=workflow%3A%22CI+of+mc_panda%22)
 
 This package provides the following robot modules for [mc_rtc]:
 - `PandaDefault`: panda robot without an end-effector mounted
