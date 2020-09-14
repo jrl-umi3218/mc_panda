@@ -57,6 +57,7 @@ bool PumpVacuumState::run(mc_control::fsm::Controller & ctl_)
   }
   else
   {
+    pump_->stop();
     output("VacuumFailure");
   }
   return true;

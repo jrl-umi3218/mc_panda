@@ -49,6 +49,7 @@ bool PumpDropOffState::run(mc_control::fsm::Controller & ctl_)
   }
   else
   {
+    pump_->stop();
     output("DropOffFailure");
   }
   return true;
