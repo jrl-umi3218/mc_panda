@@ -141,8 +141,9 @@ bool Pump::connect(const std::string & ip)
   interruptThread_ = std::thread([this]() {
     while(connected_)
     {
-      if(busy_ && interrupted_)
+      if(interrupted_)
       {
+        bool busy = busy_;
         bool s = false;
         std::string error;
         try
@@ -159,6 +160,12 @@ bool Pump::connect(const std::string & ip)
         {
           error = exc.what();
           mc_rtc::log::error("{} connection lost, failed to execute stop command: {}", name_, error);
+        }
+        success_ = s;
+        error_ = error;
+        if(!busy)
+        {
+          interrupted_ = false;
         }
       }
       else
