@@ -37,10 +37,13 @@ mc_rbdyn::DevicePtr Robot::clone() const
 
 void Robot::addToLogger(mc_rtc::Logger & logger, const std::string & prefix)
 {
+  // External torque, filtered
   logger.addLogEntry(prefix + "_tau_ext_hat_filtered",
                      [this]() -> const std::array<double, 7> & { return state_.tau_ext_hat_filtered; });
+  // Estimated external wrench (force, torque) acting on stiffness frame, expressed relative to the base frame
   logger.addLogEntry(prefix + "_O_F_ext_hat_K",
                      [this]() -> const std::array<double, 6> & { return state_.O_F_ext_hat_K; });
+  // Estimated external wrench (force, torque) acting on stiffness frame, expressed relative to the stiffness frame
   logger.addLogEntry(prefix + "_K_F_ext_hat_K",
                      [this]() -> const std::array<double, 6> & { return state_.K_F_ext_hat_K; });
   logger.addLogEntry(prefix + "_control_command_success_rate",
@@ -49,8 +52,29 @@ void Robot::addToLogger(mc_rtc::Logger & logger, const std::string & prefix)
                      [this]() -> const std::array<double, 7> & { return state_.joint_contact; });
   logger.addLogEntry(prefix + "_cartesian_contact",
                      [this]() -> const std::array<double, 6> & { return state_.cartesian_contact; });
-  logger.addLogEntry(prefix + "_torque_derivatives",
+  // Measured link-side joint torque sensor signals
+  logger.addLogEntry(prefix + "_torque_measured", [this]() -> const std::array<double, 7> & { return state_.tau_J; });
+  // Desired link-side joint torque sensor signals without gravity
+  logger.addLogEntry(prefix + "_torque_desired", [this]() -> const std::array<double, 7> & { return state_.tau_J_d; });
+  // Derivative of measured link-side joint torque sensor signals
+  logger.addLogEntry(prefix + "_torque_derivative_measured",
                      [this]() -> const std::array<double, 7> & { return state_.dtau_J; });
+  // Measured joint position
+  logger.addLogEntry(prefix + "_jointpos_measured", [this]() -> const std::array<double, 7> & { return state_.q; });
+  // Desired joint position
+  logger.addLogEntry(prefix + "_jointpos_desired", [this]() -> const std::array<double, 7> & { return state_.q_d; });
+  // Measured joint velocity
+  logger.addLogEntry(prefix + "_jointvel_measured", [this]() -> const std::array<double, 7> & { return state_.dq; });
+  // Desired joint velocity
+  logger.addLogEntry(prefix + "_jointvel_desired", [this]() -> const std::array<double, 7> & { return state_.dq_d; });
+  // Desired joint acceleration
+  logger.addLogEntry(prefix + "_jointacc_desired", [this]() -> const std::array<double, 7> & { return state_.ddq_d; });
+  // Motor position
+  logger.addLogEntry(prefix + "_motorpos", [this]() -> const std::array<double, 7> & { return state_.theta; });
+  // Motor velocity
+  logger.addLogEntry(prefix + "_motorvel", [this]() -> const std::array<double, 7> & { return state_.dtheta; });
+  logger.addLogEntry(prefix + "_m_ee", [this]() -> const double { return state_.m_ee; });
+  logger.addLogEntry(prefix + "_m_load", [this]() -> const double { return state_.m_load; });
   // FIXME Previous version logged singular values which does not match anythin in franka::RobotState
 }
 
@@ -62,7 +86,18 @@ void Robot::removeFromLogger(mc_rtc::Logger & logger, const std::string & prefix
   logger.removeLogEntry(prefix + "_control_command_success_rate");
   logger.removeLogEntry(prefix + "_joint_contact");
   logger.removeLogEntry(prefix + "_cartesian_contact");
-  logger.removeLogEntry(prefix + "_torque_derivatives");
+  logger.removeLogEntry(prefix + "_torque_measured");
+  logger.removeLogEntry(prefix + "_torque_desired");
+  logger.removeLogEntry(prefix + "_torque_derivative_measured");
+  logger.removeLogEntry(prefix + "_jointpos_measured");
+  logger.removeLogEntry(prefix + "_jointpos_desired");
+  logger.removeLogEntry(prefix + "_jointvel_measured");
+  logger.removeLogEntry(prefix + "_jointvel_desired");
+  logger.removeLogEntry(prefix + "_jointacc_desired");
+  logger.removeLogEntry(prefix + "_motorpos");
+  logger.removeLogEntry(prefix + "_motorvel");
+  logger.removeLogEntry(prefix + "_m_ee");
+  logger.removeLogEntry(prefix + "_m_load");
 }
 
 void Robot::connect(franka::Robot * robot)
