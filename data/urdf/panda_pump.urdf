@@ -111,7 +111,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@MESHES_DESTINATION@/meshes/visual/link0.dae"/>
+        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link0.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -145,7 +145,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@MESHES_DESTINATION@/meshes/visual/link1.dae"/>
+        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link1.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -187,7 +187,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@MESHES_DESTINATION@/meshes/visual/link2.dae"/>
+        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link2.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -229,7 +229,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@MESHES_DESTINATION@/meshes/visual/link3.dae"/>
+        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link3.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -271,7 +271,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@MESHES_DESTINATION@/meshes/visual/link4.dae"/>
+        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link4.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -313,7 +313,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@MESHES_DESTINATION@/meshes/visual/link5.dae"/>
+        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link5.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -373,7 +373,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@MESHES_DESTINATION@/meshes/visual/link6.dae"/>
+        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link6.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -415,7 +415,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@MESHES_DESTINATION@/meshes/visual/link7.dae"/>
+        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link7.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -489,7 +489,7 @@
     <visual>
       <origin rpy="3.14 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file:///usr/local/share/mc_panda//meshes//pump.dae"/>
+        <mesh filename="file://@URDF_DESTINATION@/meshes/pump.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -498,7 +498,7 @@
     <collision>
       <origin rpy="3.14 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file:///usr/local/share/mc_panda//meshes//pump.dae"/>
+        <mesh filename="file://@URDF_DESTINATION@/meshes/pump.dae"/>
       </geometry>
     </collision>
     <!--  scale="0.001 0.001 0.001" -->
