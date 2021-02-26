@@ -43,6 +43,7 @@ Pump model was downloaded from [Schmalz](https://www.schmalz.com/en/10.03.01.003
 ### Video presentation
 
 A video demonstrating panda motion generation and simultaneous pump actuation employing this implementation is available here:
+
 [![Video presentation](https://img.youtube.com/vi/juynq6x9JJ8/0.jpg)](https://youtu.be/juynq6x9JJ8 "Safe Impacts with Soft Contacts Based on Learned Deformations")
 
 ### Reference
