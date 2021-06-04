@@ -173,6 +173,8 @@ DEF main_link Humanoid {
           llimit -2.8973
           uvlimit 2.175
           lvlimit -2.175
+          rotorInertia 0.01
+          gearRatio 100
           climit [87.0]
           children [
             DEF panda_link1 Segment {
@@ -203,6 +205,8 @@ DEF main_link Humanoid {
               llimit -1.7628
               uvlimit 2.175
               lvlimit -2.175
+              rotorInertia 0.01
+              gearRatio 100
               climit [87.0]
               children [
                 DEF panda_link2 Segment {
@@ -233,6 +237,8 @@ DEF main_link Humanoid {
                   llimit -2.8973
                   uvlimit 2.175
                   lvlimit -2.175
+                  rotorInertia 0.01
+                  gearRatio 100
                   climit [87.0]
                   children [
                     DEF panda_link3 Segment {
@@ -263,6 +269,8 @@ DEF main_link Humanoid {
                       llimit -3.0718
                       uvlimit 2.175
                       lvlimit -2.175
+                      rotorInertia 0.01
+                      gearRatio 100
                       climit [87.0]
                       children [
                         DEF panda_link4 Segment {
@@ -293,6 +301,8 @@ DEF main_link Humanoid {
                           llimit -2.8973
                           uvlimit 2.61
                           lvlimit -2.61
+                          rotorInertia 0.01
+                          gearRatio 100
                           climit [12.0]
                           children [
                             DEF panda_link5 Segment {
@@ -323,6 +333,8 @@ DEF main_link Humanoid {
                               llimit -0.0175
                               uvlimit 2.61
                               lvlimit -2.61
+                              rotorInertia 0.01
+                              gearRatio 100
                               climit [12.0]
                               children [
                                 DEF panda_link6 Segment {
@@ -353,6 +365,8 @@ DEF main_link Humanoid {
                                   llimit -2.8973
                                   uvlimit 2.61
                                   lvlimit -2.61
+                                  rotorInertia 0.01
+                                  gearRatio 100
                                   climit [12.0]
                                   children [
                                     DEF wristsensorA ForceSensor {# taken from R_FOOT Joint in HRP4LIRMM_main.wrl 
