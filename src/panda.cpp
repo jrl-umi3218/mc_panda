@@ -55,6 +55,8 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
   using bound_t = mc_rbdyn::RobotModule::accelerationBounds_t::value_type;
   bound_t torqueDerivativeUpper;
   bound_t torqueDerivativeLower;
+  bound_t jerkBoundsUpper;
+  bound_t jerkBoundsLower;
   bound_t accelerationBoundsUpper;
   bound_t accelerationBoundsLower;
   for(const auto & b : _bounds[0])
@@ -62,6 +64,12 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
     torqueDerivativeUpper[b.first] = std::vector<double>(b.second.size(), 1000);
     torqueDerivativeLower[b.first] = std::vector<double>(b.second.size(), -1000);
   }
+  jerkBoundsLower = {{"panda_joint1", {-7500}}, {"panda_joint2", {-3750}}, {"panda_joint3", {-5000}},
+                     {"panda_joint4", {-6250}}, {"panda_joint5", {-7500}}, {"panda_joint6", {-10000}},
+                     {"panda_joint7", {-10000}}};
+  jerkBoundsUpper = {{"panda_joint1", {7500}}, {"panda_joint2", {3750}}, {"panda_joint3", {5000}},
+                     {"panda_joint4", {6250}}, {"panda_joint5", {7500}}, {"panda_joint6", {10000}},
+                     {"panda_joint7", {10000}}};
   accelerationBoundsLower = {{"panda_joint1", {-15}},   {"panda_joint2", {-7.5}}, {"panda_joint3", {-10}},
                              {"panda_joint4", {-12.5}}, {"panda_joint5", {-15}},  {"panda_joint6", {-20}},
                              {"panda_joint7", {-20}}};
@@ -70,6 +78,8 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
                              {"panda_joint7", {20}}};
   _torqueDerivativeBounds.push_back(torqueDerivativeLower);
   _torqueDerivativeBounds.push_back(torqueDerivativeUpper);
+  _jerkBounds.push_back(jerkBoundsLower);
+  _jerkBounds.push_back(jerkBoundsUpper);
   _accelerationBounds.push_back(accelerationBoundsLower);
   _accelerationBounds.push_back(accelerationBoundsUpper);
 
