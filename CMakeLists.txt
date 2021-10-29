@@ -15,4 +15,7 @@ find_package(Franka REQUIRED)
 add_subdirectory(cmake)
 add_subdirectory(data)
 add_subdirectory(src)
-add_subdirectory(tests)
+
+if(BUILD_TESTING)
+  add_subdirectory(tests)
+endif()
