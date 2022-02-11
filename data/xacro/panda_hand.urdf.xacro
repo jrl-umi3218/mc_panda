@@ -7,7 +7,7 @@
   </xacro:include>
   <xacro:include filename="@CMAKE_BINARY_DIR@/xacro/panda.xacro">
   </xacro:include>
-  <xacro:include filename="$(find franka_description)/robots/hand.xacro"/>
+  <xacro:include filename="@CMAKE_BINARY_DIR@/xacro/hand.xacro"/>
 
   <xacro:main connected_to='world'/>
   <xacro:panda xyz="0 0 0" connected_to='main_link' safety_distance="0.03"/>

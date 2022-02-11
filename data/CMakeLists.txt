@@ -47,6 +47,7 @@ configure_file("xacro/main.xacro" "${CMAKE_BINARY_DIR}/xacro/main.xacro" @ONLY)
 configure_file("xacro/main.gazebo.xacro" "${CMAKE_BINARY_DIR}/xacro/main.gazebo.xacro" @ONLY)
 configure_file("xacro/panda.xacro" "${CMAKE_BINARY_DIR}/xacro/panda.xacro" @ONLY)
 configure_file("xacro/panda.gazebo.xacro" "${CMAKE_BINARY_DIR}/xacro/panda.gazebo.xacro" @ONLY)
+configure_file("xacro/hand.xacro" "${CMAKE_BINARY_DIR}/xacro/hand.xacro" @ONLY)
 configure_file("xacro/foot.xacro" "${CMAKE_BINARY_DIR}/xacro/foot.xacro" @ONLY)
 configure_file("xacro/pump.xacro" "${CMAKE_BINARY_DIR}/xacro/pump.xacro" @ONLY)
 
