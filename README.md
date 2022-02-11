@@ -33,9 +33,7 @@ This package requires:
 
 If [mc_openrtm](https://github.com/jrl-umi3218/mc_openrtm) is installed this will also install compatible Choreonoid projects for the panda robot.
 
-Original xacro files from:
-- [franka_ros] for the main definitions and collisions specifications
-- [franka_gazebo](https://github.com/mkrizmancic/franka_gazebo) for the inertial parameters
+Original xacro files from [franka_ros]
 
 Pump model was downloaded from [Schmalz](https://www.schmalz.com/en/10.03.01.00314)
 

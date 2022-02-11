@@ -10,6 +10,13 @@
       </joint>
     </xacro:unless>
     <link name="${ns}_hand">
+      <inertial>
+        <mass value="0.73" />
+        <origin xyz="-0.01 0 0.03" />
+        <inertia ixx="0.001" ixy="0"      ixz="0"
+                             iyy="0.0025" iyz="0"
+                                          izz="0.0017" />
+      </inertial>
       <visual>
         <geometry>
           <mesh filename="package://franka_description/meshes/visual/hand.dae"/>
