@@ -22,4 +22,4 @@ override_dh_autoconfigure:
 	dh_autoconfigure -- -DBUILD_TESTING:BOOL=OFF
 
 override_dh_shlibdeps:
-	LD_LIBRARY_PATH="/opt/ros/${ROS_DISTRO}/lib:${LD_LIBRARY_PATH}" dh_shlibdeps
+	LD_LIBRARY_PATH="/opt/ros/${ROS_DISTRO}/lib:/opt/ros/${ROS_DISTRO}/lib/${DEB_TARGET_MULTIARCH}:${LD_LIBRARY_PATH}" dh_shlibdeps
