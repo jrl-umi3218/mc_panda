@@ -19,3 +19,5 @@ add_subdirectory(src)
 if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
+
+install(FILES etc/ForceSensorCalibration/panda_default.yaml DESTINATION ${MC_CONTROLLER_RUNTIME_INSTALL_PREFIX}/ForceSensorCalibration/)

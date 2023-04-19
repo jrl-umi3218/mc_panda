@@ -1,0 +1,48 @@
+ObserverPipelines:
+- name: "PandaEncoderPipeline"
+  observers:
+    - type: Encoder
+SingularityThreshold: 0.08
+forceSensors:
+- LeftHandForceSensor
+initial_posture:
+  completion:
+    eval: 0.05
+  target:
+    panda_joint1: [0.0]
+    panda_joint2: [0.0]
+    panda_joint3: [0.0]
+    panda_joint4: [-2.0]
+    panda_joint5: [0.0]
+    panda_joint6: [2.0]
+    panda_joint7: [0.0]
+motion:
+  duration: 50
+  stiffness: 10
+  percentLimits: 0.8
+  joints:
+  - name: panda_joint1
+    period: 11
+  - name: panda_joint2
+    period: 12
+  - name: panda_joint3
+    period: 13
+  - name: panda_joint4
+    period: 14
+  - name: panda_joint5
+    period: 15
+  - name: panda_joint6
+    period: 16
+  - name: panda_joint7
+    period: 17
+collisions:
+- body1: panda_link6*
+  body2: ground
+  iDist: 0.7
+  sDist: 0.04
+  damping: 0.0
+- body1: panda_link7*
+  body2: ground
+  iDist: 0.7
+  sDist: 0.04
+  damping: 0.0
