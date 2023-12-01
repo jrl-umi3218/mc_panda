@@ -14,6 +14,8 @@
 
 #include <RBDyn/parsers/urdf.h>
 
+#include <filesystem>
+
 namespace mc_robots
 {
 
@@ -100,6 +102,21 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
       mc_rbdyn::ForceSensor("LeftHandForceSensor", "panda_link7",
                             sva::PTransformd(mc_rbdyn::rpyToMat(3.14, 0.0, 0.0), Eigen::Vector3d(0, 0, -0.04435))));
 
+  // Remove all existing collision shapes (over-sized ellipses from the urdf model)
+  _collision.clear();
+  // Build _convexHull from sch files
+  auto convexPath = path + "/convex/panda_default";
+  for(const auto & b : mb.bodies())
+  {
+    auto ch = std::filesystem::path{convexPath} / (b.name() + "-ch.txt");
+    mc_rtc::log::info("Loading convex {}", ch.string());
+    if(std::filesystem::exists(ch))
+    {
+      _convexHull[b.name()] = {b.name(), ch.string()};
+      _collisionTransforms[b.name()] = sva::PTransformd::Identity();
+    }
+  }
+
   if(foot)
   {
     _convexHull["panda_foot"] = {"panda_foot", path + "/convex/panda_foot/panda_foot-ch.txt"};
@@ -109,23 +126,16 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
     _convexHull["panda_pump"] = {"panda_pump", path + "/convex/panda_pump/panda_pump-ch.txt"};
   }
 
-  const double i = 0.015; // 0.01;
-  const double s = 0.0075; // 0.005;
+  const double i = 0.015;
+  const double s = 0.01;
   const double d = 0.;
-  _minimalSelfCollisions = {{"panda_link0*", "panda_link5*", i, s, d},
-                            {"panda_link1*", "panda_link5*", i, s, d},
-                            {"panda_link2*", "panda_link5*", i, s, d},
-                            {"panda_link3*", "panda_link5*", i, s, d},
-                            {"panda_link0*", "panda_link6*", i, s, d},
-                            {"panda_link1*", "panda_link6*", i, s, d},
-                            {"panda_link2*", "panda_link6*", i, s, d},
-                            {"panda_link3*", "panda_link6*", i, s, d},
-                            {"panda_link0*", "panda_link7*", i, s, d},
-                            {"panda_link1*", "panda_link7*", i, s, d},
-                            {"panda_link2*", "panda_link7*", i, s, d},
-                            {"panda_link3*", "panda_link7*", i, s, d},
-                            // FIXME Is this last one needed?
-                            {"panda_link5*", "panda_link7*", i, s, d}};
+  _minimalSelfCollisions = {
+      {"panda_link0", "panda_link5", i, s, d}, {"panda_link1", "panda_link5", i, s, d},
+      {"panda_link2", "panda_link5", i, s, d}, {"panda_link0", "panda_link6", i, s, d},
+      {"panda_link1", "panda_link6", i, s, d}, {"panda_link2", "panda_link6", i, s, d},
+      {"panda_link0", "panda_link7", i, s, d}, {"panda_link1", "panda_link7", i, s, d},
+      {"panda_link2", "panda_link7", i, s, d}, {"panda_link3", "panda_link7", i, s, d},
+  };
 
   /* Additional self collisions */
   if(pump)
