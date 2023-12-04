@@ -102,18 +102,18 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
       mc_rbdyn::ForceSensor("LeftHandForceSensor", "panda_link7",
                             sva::PTransformd(mc_rbdyn::rpyToMat(3.14, 0.0, 0.0), Eigen::Vector3d(0, 0, -0.04435))));
 
-  // Remove all existing collision shapes (over-sized ellipses from the urdf model)
-  _collision.clear();
-  // Build _convexHull from sch files
+  // Add convex shapes from sch files to _convexHull
+  // NOTE that these collision shapes cannot be used directly on the real robot as the embedded controller
+  // independently checks for collision based on capsules.
   auto convexPath = path + "/convex/panda_default";
   for(const auto & b : mb.bodies())
   {
     auto ch = std::filesystem::path{convexPath} / (b.name() + "-ch.txt");
-    mc_rtc::log::info("Loading convex {}", ch.string());
     if(std::filesystem::exists(ch))
     {
-      _convexHull[b.name()] = {b.name(), ch.string()};
-      _collisionTransforms[b.name()] = sva::PTransformd::Identity();
+      auto colName = "convex_" + b.name();
+      _convexHull[colName] = {b.name(), ch.string()};
+      _collisionTransforms[colName] = sva::PTransformd::Identity();
     }
   }
 
@@ -126,16 +126,28 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
     _convexHull["panda_pump"] = {"panda_pump", path + "/convex/panda_pump/panda_pump-ch.txt"};
   }
 
-  const double i = 0.015;
-  const double s = 0.01;
+  // By default we use very conservative self-collision shapes (capsules) defined in the urdf
+  // These match the ones used internally by the robot such that we do not trigger
+  // the self_collision_constraint_violation check.
+  const double i = 0.01;
+  const double s = 0.005;
   const double d = 0.;
-  _minimalSelfCollisions = {
-      {"panda_link0", "panda_link5", i, s, d}, {"panda_link1", "panda_link5", i, s, d},
-      {"panda_link2", "panda_link5", i, s, d}, {"panda_link0", "panda_link6", i, s, d},
-      {"panda_link1", "panda_link6", i, s, d}, {"panda_link2", "panda_link6", i, s, d},
-      {"panda_link0", "panda_link7", i, s, d}, {"panda_link1", "panda_link7", i, s, d},
-      {"panda_link2", "panda_link7", i, s, d}, {"panda_link3", "panda_link7", i, s, d},
+  // clang-format off
+  _minimalSelfCollisions =
+  {
+    {"panda_link0*", "panda_link5*", i, s, d},
+    {"panda_link1*", "panda_link5*", i, s, d},
+    {"panda_link2*", "panda_link5*", i, s, d},
+    {"panda_link3*", "panda_link5*", i, s, d},
+    {"panda_link0*", "panda_link6*", i, s, d},
+    {"panda_link1*", "panda_link6*", i, s, d},
+    {"panda_link2*", "panda_link6*", i, s, d},
+    {"panda_link0*", "panda_link7*", i, s, d},
+    {"panda_link1*", "panda_link7*", i, s, d},
+    {"panda_link2*", "panda_link7*", i, s, d},
+    {"panda_link3*", "panda_link7*", i, s, d}
   };
+  // clang-format on
 
   /* Additional self collisions */
   if(pump)
