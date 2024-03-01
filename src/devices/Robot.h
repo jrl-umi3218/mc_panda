@@ -6,6 +6,7 @@
 
 #include <mc_rtc/log/Logger.h>
 
+#include <franka/model.h>
 #include <franka/robot.h>
 
 #include <condition_variable>
@@ -106,6 +107,12 @@ struct MC_PANDA_DEVICES_DLLAPI Robot : public mc_rbdyn::Device
 
   /** Stop all currently running motions, see franka::Robot documentation for details */
   void stop();
+
+  /** Loads the  model library from the robot */
+  inline franka::Model model() const noexcept
+  {
+    return robot_->loadModel();
+  }
 
 private:
   std::thread commandThread_;
