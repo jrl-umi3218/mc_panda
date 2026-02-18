@@ -1,3 +1,8 @@
+#
+# Generates panda models for mc_rtc
+# - If mc_rtc was built with ROS support, use franka_description and xacro file
+# - If mc_rtc was built without ROS support, use the pre-generated URDF files and install our own meshes
+#
 find_program(XACRO xacro)
 
 find_package(choreonoid QUIET)
@@ -10,12 +15,25 @@ if(choreonoid_FOUND)
   install(DIRECTORY model/panda/ DESTINATION ${MODEL_DESTINATION} FILES_MATCHING PATTERN "*.wrl")
 endif()
 
-set(PANDA_DESCRIPTION_PATH "${CMAKE_INSTALL_PREFIX}/share/mc_panda")
-set(URDF_DESTINATION "${PANDA_DESCRIPTION_PATH}/")
-set(CONVEX_DESTINATION "${URDF_DESTINATION}/convex")
-set(MESHES_DESTINATION "${URDF_DESTINATION}/meshes")
+# Try to find franka_description package
+find_package(franka_description QUIET)
+if(franka_description_FOUND)
+  message(STATUS "found franka_description package")
+  # # Try to locate the share directory of franka_description
+  # # This assumes franka_description provides franka_description_DIR
+  # get_filename_component(FRANKA_DESCRIPTION_SHARE "${franka_description_DIR}/../share/franka_description" ABSOLUTE)
+  # set(URDF_DESTINATION "${FRANKA_DESCRIPTION_SHARE}")
+endif()
 
-if(XACRO)
+if(TARGET mc_rtc::mc_rtc_ros)
+  message(STATUS "mc_rtc was built with ROS support")
+  if(NOT franka_description_FOUND)
+    message(FATAL_ERROR "franka_description package not found. Please install franka_description or set the URDF_DESTINATION variable to a valid path.")
+  endif()
+  if(NOT XACRO)
+    message(FATAL_ERROR "xacro not found. Please install xacro or set the URDF_DESTINATION variable to a valid path.")
+  endif()
+  message(STATUS "Using franka_description ros package for meshes and xacro for generation")
   # Generate a xacro file and the associated urdf
   macro(GENERATE_ROBOT XACRO_IN)
     get_filename_component(XACRO_OUT "${XACRO_IN}" NAME)
@@ -33,6 +51,12 @@ if(XACRO)
     install(FILES "${URDF_OUT}" DESTINATION "${URDF_DESTINATION}")
   endmacro()
 else()
+  message(STATUS "mc_rtc was built without ROS support, using local urdf files and meshes (from mc_panda)")
+  set(PANDA_DESCRIPTION_PATH "${CMAKE_INSTALL_PREFIX}/share/mc_panda")
+  set(URDF_DESTINATION "${PANDA_DESCRIPTION_PATH}/")
+  set(CONVEX_DESTINATION "${URDF_DESTINATION}/convex")
+  set(MESHES_DESTINATION "${URDF_DESTINATION}/meshes")
+
   macro(GENERATE_ROBOT XACRO_IN)
     get_filename_component(XACRO_OUT "${XACRO_IN}" NAME)
     get_filename_component(NAME "${XACRO_OUT}" NAME_WE)
