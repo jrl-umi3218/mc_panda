@@ -30,7 +30,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://${package_name}/meshes/robot_arms/fr3/visual/link0.dae"/>
+          <mesh filename="package://${package_name}/meshes/visual/link0.dae"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -67,7 +67,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://${package_name}/meshes/robot_arms/fr3/visual/link1.dae"/>
+          <mesh filename="package://${package_name}/meshes/visual/link1.dae"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -113,7 +113,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://${package_name}/meshes/robot_arms/fr3/visual/link2.dae"/>
+          <mesh filename="package://${package_name}/meshes/visual/link2.dae"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -159,7 +159,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://${package_name}/meshes/robot_arms/fr3/visual/link3.dae"/>
+          <mesh filename="package://${package_name}/meshes/visual/link3.dae"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -205,7 +205,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://${package_name}/meshes/robot_arms/fr3/visual/link4.dae"/>
+          <mesh filename="package://${package_name}/meshes/visual/link4.dae"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -251,7 +251,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://${package_name}/meshes/robot_arms/fr3/visual/link5.dae"/>
+          <mesh filename="package://${package_name}/meshes/visual/link5.dae"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -315,7 +315,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://${package_name}/meshes/robot_arms/fr3/visual/link6.dae"/>
+          <mesh filename="package://${package_name}/meshes/visual/link6.dae"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -361,7 +361,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://${package_name}/meshes/robot_arms/fr3/visual/link7.dae"/>
+          <mesh filename="package://${package_name}/meshes/visual/link7.dae"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
