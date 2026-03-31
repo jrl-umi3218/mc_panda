@@ -1,4 +1,4 @@
-#include "Robot.h"
+#include <mc_panda/devices/Robot.h>
 
 #include <mc_rbdyn/Robot.h>
 

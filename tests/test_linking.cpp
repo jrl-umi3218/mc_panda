@@ -5,6 +5,6 @@
 
 int main()
 {
-  mc_robots::PandaRobotModule robot(true, false, false);
+  mc_panda::PandaRobotModule robot(true, false, false);
   return 0;
 }

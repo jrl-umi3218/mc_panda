@@ -1,16 +1,16 @@
-configure_file(config.h.in "${CMAKE_CURRENT_BINARY_DIR}/include/config.h")
+configure_file(${PROJECT_SOURCE_DIR}/include/mc_panda/config.in.h "${CMAKE_BINARY_DIR}/include/mc_panda/config.h")
 
 set(MC_PANDA_PREFIX "MC_PANDA")
-configure_file(api.in.h "${CMAKE_CURRENT_BINARY_DIR}/include/mc_panda/api.h")
+configure_file(${PROJECT_SOURCE_DIR}/include/mc_panda/api.in.h "${CMAKE_BINARY_DIR}/include/mc_panda/api.h")
 
 set(MC_PANDA_PREFIX "MC_PANDA_DEVICES")
-configure_file(api.in.h "${CMAKE_CURRENT_BINARY_DIR}/include/mc_panda/devices/api.h")
+configure_file(${PROJECT_SOURCE_DIR}/include/mc_panda/api.in.h "${CMAKE_BINARY_DIR}/include/mc_panda/devices/api.h")
 
 # Panda custom devices library
 set(devices_HDR
-  devices/Robot.h
-  devices/Pump.h
-  "${CMAKE_CURRENT_BINARY_DIR}/include/mc_panda/devices/api.h"
+  ${PROJECT_SOURCE_DIR}/include/mc_panda/devices/Robot.h
+  ${PROJECT_SOURCE_DIR}/include/mc_panda/devices/Pump.h
+  "${CMAKE_BINARY_DIR}/include/mc_panda/devices/api.h"
 )
 set(devices_SRC
   devices/Robot.cpp
@@ -21,7 +21,12 @@ add_library(mc_panda_devices SHARED ${devices_SRC} ${devices_HDR})
 add_library(mc_panda::devices ALIAS mc_panda_devices)
 set_target_properties(mc_panda_devices PROPERTIES EXPORT_NAME devices)
 set_target_properties(mc_panda_devices PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR} VERSION ${PROJECT_VERSION})
-target_include_directories(mc_panda_devices PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
+target_include_directories(mc_panda_devices 
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+  )
 target_link_libraries(mc_panda_devices PUBLIC mc_rtc::mc_rbdyn Franka::Franka)
 target_compile_definitions(mc_panda_devices PRIVATE -DMC_PANDA_DEVICES_EXPORTS)
 install(FILES ${devices_HDR} DESTINATION include/mc_panda/devices)
@@ -33,8 +38,9 @@ install(TARGETS mc_panda_devices
 
 # Panda robot module library
 set(panda_HDR
-  panda.h
-  "${CMAKE_CURRENT_BINARY_DIR}/include/mc_panda/api.h"
+  ${PROJECT_SOURCE_DIR}/include/mc_panda/panda.h
+  "${CMAKE_BINARY_DIR}/include/mc_panda/api.h"
+  "${CMAKE_BINARY_DIR}/include/mc_panda/config.h"
 )
 
 set(panda_SRC

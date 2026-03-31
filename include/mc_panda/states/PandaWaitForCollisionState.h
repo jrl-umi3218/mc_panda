@@ -3,7 +3,7 @@
 #include <mc_control/fsm/Controller.h>
 #include <mc_control/fsm/State.h>
 
-#include <devices/Robot.h>
+#include <mc_panda/devices/Robot.h>
 
 namespace mc_panda
 {
