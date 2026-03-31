@@ -1,22 +1,15 @@
-#include "panda.h"
-#include "devices/Pump.h"
-#include "devices/Robot.h"
-
-#include "config.h"
-
-#ifndef M_PI
-#  include <boost/math/constants/constants.hpp>
-#  define M_PI boost::math::constants::pi<double>()
-#endif
-
+#include <mc_panda/panda.h>
+#include <mc_panda/devices/Pump.h>
+#include <mc_panda/devices/Robot.h>
 #include <mc_rbdyn/rpy_utils.h>
 #include <mc_rtc/constants.h>
 
 #include <RBDyn/parsers/urdf.h>
 
 #include <filesystem>
+namespace fs = std::filesystem;
 
-namespace mc_robots
+namespace mc_panda
 {
 
 inline static std::string pandaVariant(bool pump, bool foot, bool hand)
@@ -45,13 +38,16 @@ inline static std::string pandaVariant(bool pump, bool foot, bool hand)
   return "";
 }
 
-PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
-: RobotModule(PANDA_DESCRIPTION_PATH, pandaVariant(pump, foot, hand))
+PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand, const std::string & _urdf_path, const std::string & _rsdf_base_path, const std::string & _calib_path)
+: RobotModule(_urdf_path, pandaVariant(pump, foot, hand))
 {
-  mc_rtc::log::success("PandaRobotModule loaded with name: {}", name);
-  urdf_path = path + "/" + name + ".urdf";
-  _real_urdf = urdf_path;
-  init(rbd::parsers::from_urdf_file(urdf_path, true));
+  this->urdf_path = _urdf_path + "/" + name + ".urdf";
+  this->rsdf_dir = _rsdf_base_path + "/rsdf/" + name + "/";
+  this->calib_dir = _calib_path + "/calib";
+
+  _real_urdf = this->urdf_path;
+  mc_rtc::log::success("PandaRobotModule loaded with name: {} from urdf: {}", name, this->urdf_path);
+  init(rbd::parsers::from_urdf_file(this->urdf_path, true));
 
   // additional joint panda limits, see https://frankaemika.github.io/docs/control_parameters.html#constants
   using bound_t = mc_rbdyn::RobotModule::accelerationBounds_t::value_type;
@@ -108,8 +104,8 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
   auto convexPath = path + "/convex/panda_default";
   for(const auto & b : mb.bodies())
   {
-    auto ch = std::filesystem::path{convexPath} / (b.name() + "-ch.txt");
-    if(std::filesystem::exists(ch))
+    auto ch = fs::path{convexPath} / (b.name() + "-ch.txt");
+    if(fs::exists(ch))
     {
       auto colName = "convex_" + b.name();
       _convexHull[colName] = {b.name(), ch.string()};
@@ -202,4 +198,4 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
   mc_rtc::log::success("PandaRobotModule uses rsdf_dir {}", rsdf_dir);
 }
 
-} // namespace mc_robots
+} // namespace mc_panda

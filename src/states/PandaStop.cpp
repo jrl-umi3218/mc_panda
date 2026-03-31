@@ -1,8 +1,8 @@
-#include "PandaStop.h"
+#include <mc_panda/states/PandaStop.h>
 
 #include <mc_control/fsm/Controller.h>
 
-#include <devices/Robot.h>
+#include <mc_panda/devices/Robot.h>
 
 namespace mc_panda
 {
