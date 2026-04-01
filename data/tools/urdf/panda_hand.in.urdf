@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot name="panda_hand">
+  <link name="panda_hand_connector"></link>
   <joint name="panda_hand_joint" type="fixed">
-    <parent link="panda_link8"/>
+    <parent link="panda_hand_connector"/>
     <child link="panda_hand"/>
     <origin rpy="0 0 -0.7853981633974483" xyz="0 0 0"/>
   </joint>

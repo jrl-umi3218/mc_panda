@@ -4,6 +4,7 @@
 #include <mc_rtc/logging.h>
 #include <mc_panda/config.h>
 #include <mc_rtc/io_utils.h>
+#include <mc_rbdyn/RobotLoader.h>
 
 extern "C"
 {
@@ -47,7 +48,11 @@ extern "C"
             robot_rm = new PandaRobotModule(robot_name, false, false, false, FR3_DESCRIPTION_PATH, FR3_DESCRIPTION_PATH, FR3_DESCRIPTION_PATH);
             }
 
-            mc_rbdyn::RobotModule * tool_rm = nullptr;
+            mc_rbdyn::RobotModulePtr tool_rm = nullptr;
+            if(tool == T::Hand)
+            {
+              tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Tool_Panda_Hand");
+            }
 
             if(tool_rm == nullptr)
             {
@@ -55,8 +60,11 @@ extern "C"
             }
             else
             {
-              // FIXME connect modules
-              return tool_rm;
+
+              return new mc_rbdyn::RobotModule(
+                  robot_rm->connect(
+                  *tool_rm, "panda_link8", "panda_hand_connector", "",
+                  mc_rbdyn::RobotModule::ConnectionParameters{}.name(robot_name).X_other_connection(sva::PTransformd::Identity())));
             }
           };
           });
