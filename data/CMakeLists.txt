@@ -134,4 +134,6 @@ if(choreonoid_FOUND)
   generate_cnoid_project(panda_pump)
 endif()
 
+add_subdirectory(tools)
+
 set(PANDA_DESCRIPTION_PATH "${PANDA_DESCRIPTION_PATH}" PARENT_SCOPE)

@@ -7,6 +7,7 @@ extern "C"
 {
   ROBOT_MODULE_API void MC_RTC_ROBOT_MODULE(std::vector<std::string> & names)
   {
+    // names = {"Panda", "PandaDefault", "PandaHand", "PandaPump", "PandaFoot"};
     names = {"Panda", "PandaDefault", "PandaHand", "PandaPump", "PandaFoot"};
   }
   ROBOT_MODULE_API void destroy(mc_rbdyn::RobotModule * ptr)

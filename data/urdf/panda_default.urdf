@@ -475,4 +475,21 @@
     <child link="panda_link8"/>
     <axis xyz="0 0 0"/>
   </joint>
+  <link name="ball_link">
+    <visual>
+      <material name="red">
+        <color rgba="0 0 1 1" />
+      </material>
+
+      <geometry>
+        <sphere radius="0.005" />
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="ball_joint" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="-9.572068454947417e-05 0.00031346947529715616 0.07461399444599627" />
+    <parent link="panda_link8" />
+    <child link="ball_link" />
+  </joint>
 </robot>
