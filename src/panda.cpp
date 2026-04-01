@@ -40,7 +40,7 @@ inline static std::string pandaVariant(bool pump, bool foot, bool hand)
 PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand, const std::string & _urdf_path, const std::string & _rsdf_base_path, const std::string & _calib_path)
 : RobotModule(_urdf_path, pandaVariant(pump, foot, hand))
 {
-  this->urdf_path = _urdf_path + "/" + name + ".urdf";
+  this->urdf_path = _urdf_path + "/urdf/" + name + ".urdf";
   this->rsdf_dir = _rsdf_base_path + "/rsdf/" + name + "/";
   this->calib_dir = _calib_path + "/calib";
 

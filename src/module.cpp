@@ -2,13 +2,14 @@
 
 #include <mc_rbdyn/RobotModuleMacros.h>
 #include <mc_rtc/logging.h>
+#include <mc_panda/config.h>
 
 extern "C"
 {
   ROBOT_MODULE_API void MC_RTC_ROBOT_MODULE(std::vector<std::string> & names)
   {
     // names = {"Panda", "PandaDefault", "PandaHand", "PandaPump", "PandaFoot"};
-    names = {"Panda", "PandaDefault", "PandaHand", "PandaPump", "PandaFoot"};
+    names = {"Panda", "FR1::PandaDefault", "FR3::PandaDefault", "PandaHand", "PandaPump", "PandaFoot"};
   }
   ROBOT_MODULE_API void destroy(mc_rbdyn::RobotModule * ptr)
   {
@@ -17,7 +18,11 @@ extern "C"
   ROBOT_MODULE_API mc_rbdyn::RobotModule * create(const std::string & n)
   {
     ROBOT_MODULE_CHECK_VERSION("Panda")
-    if(n == "Panda" || n == "PandaDefault")
+    if(n == "Panda" || n == "FR1::PandaDefault")
+    {
+      return new mc_panda::PandaRobotModule(false, false, false, mc_panda::FR1_DESCRIPTION_PATH, mc_panda::FR1_DESCRIPTION_PATH, mc_panda::FR1_DESCRIPTION_PATH);
+    }
+    else if(n == "Panda" || n == "FR3::PandaDefault")
     {
       return new mc_panda::PandaRobotModule(false, false, false);
     }

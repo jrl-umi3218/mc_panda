@@ -1,0 +1,16 @@
+set(URDF_DESTINATION "${PANDA_DESCRIPTION_PATH}/fr3/urdf")
+set(RSDF_DESTINATION "${PANDA_DESCRIPTION_PATH}/fr3/rsdf")
+set(CONVEX_DESTINATION "${PANDA_DESCRIPTION_PATH}/fr3/convex")
+set(MESHES_DESTINATION "${PANDA_DESCRIPTION_PATH}/fr3/meshes")
+
+configure_file(urdf/fr3.in.urdf "${CMAKE_CURRENT_BINARY_DIR}/urdf/panda_default.urdf" @ONLY)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/urdf/panda_default.urdf" DESTINATION "${URDF_DESTINATION}")
+
+install(DIRECTORY meshes/visual DESTINATION "${MESHES_DESTINATION}" FILES_MATCHING PATTERN "*.dae")
+install(DIRECTORY meshes/collision DESTINATION "${MESHES_DESTINATION}" FILES_MATCHING PATTERN "*.stl")
+
+# Install convex (auto-generated now)
+# install(DIRECTORY convex DESTINATION "${URDF_DESTINATION}" FILES_MATCHING PATTERN "*-ch.txt")
+
+# Install rsdf
+install(DIRECTORY rsdf DESTINATION "${RSDF_DESTINATION}" FILES_MATCHING PATTERN "*.rsdf")

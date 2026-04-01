@@ -1,0 +1,8 @@
+exec_cxt.periodic.type: ChoreonoidExecutionContext
+exec_cxt.periodic.rate: 1000000
+nStep: 1
+dt: 0.001
+ref_dt: 0.001
+model: file://@MODEL_OUT@
+pdgains_sim_file_name: PDgains_sim.dat
+pdcontrol_tlimit_ratio: 1,1,1,1,1,1,1

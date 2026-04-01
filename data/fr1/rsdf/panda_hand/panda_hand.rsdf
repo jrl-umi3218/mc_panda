@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<robot name="panda_hand">
+
+  <planar_surface name="Hand" link="panda_hand">
+    <origin rpy="0.0 -3.141592264175415 0.0" xyz="0 0 0.07" />
+    <points>
+      <point xy="-0.01 -0.05" />
+      <point xy="0.01 -0.05" />
+      <point xy="0.01 0.05" />
+      <point xy="-0.01 0.05" />
+    </points>
+    <material name="plastic" />
+  </planar_surface>
+
+</robot>
