@@ -112,7 +112,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link0.dae"/>
+        <mesh filename="file://@FR1_DESCRIPTION_PATH@/meshes/visual/link0.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -146,7 +146,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link1.dae"/>
+        <mesh filename="file://@FR1_DESCRIPTION_PATH@/meshes/visual/link1.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -188,7 +188,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link2.dae"/>
+        <mesh filename="file://@FR1_DESCRIPTION_PATH@/meshes/visual/link2.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -230,7 +230,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link3.dae"/>
+        <mesh filename="file://@FR1_DESCRIPTION_PATH@/meshes/visual/link3.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -272,7 +272,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link4.dae"/>
+        <mesh filename="file://@FR1_DESCRIPTION_PATH@/meshes/visual/link4.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -314,7 +314,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link5.dae"/>
+        <mesh filename="file://@FR1_DESCRIPTION_PATH@/meshes/visual/link5.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -374,7 +374,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link6.dae"/>
+        <mesh filename="file://@FR1_DESCRIPTION_PATH@/meshes/visual/link6.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -416,7 +416,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file://@URDF_DESTINATION@/meshes/visual/link7.dae"/>
+        <mesh filename="file://@FR1_DESCRIPTION_PATH@/meshes/visual/link7.dae"/>
       </geometry>
       <material name="">
         <color rgba="1 1 1 1"/>
@@ -474,22 +474,5 @@
     <parent link="panda_link7"/>
     <child link="panda_link8"/>
     <axis xyz="0 0 0"/>
-  </joint>
-  <link name="ball_link">
-    <visual>
-      <material name="red">
-        <color rgba="0 0 1 1" />
-      </material>
-
-      <geometry>
-        <sphere radius="0.005" />
-      </geometry>
-    </visual>
-  </link>
-
-  <joint name="ball_joint" type="fixed">
-    <origin rpy="0.0 0.0 0.0" xyz="-9.572068454947417e-05 0.00031346947529715616 0.07461399444599627" />
-    <parent link="panda_link8" />
-    <child link="ball_link" />
   </joint>
 </robot>

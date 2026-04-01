@@ -2,5 +2,6 @@
 
 namespace mc_panda
 {
-constexpr auto PANDA_DESCRIPTION_PATH = "@PANDA_DESCRIPTION_PATH@";
+constexpr auto FR1_DESCRIPTION_PATH = "@PANDA_DESCRIPTION_PATH@/fr1";
+constexpr auto FR3_DESCRIPTION_PATH = "@PANDA_DESCRIPTION_PATH@/fr3";
 }
