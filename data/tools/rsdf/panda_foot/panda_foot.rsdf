@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<robot name="panda_foot">
+
+  <planar_surface name="Foot" link="panda_foot">
+    <origin rpy="0.0 -3.141592264175415 0.0" xyz="9.642985787650105e-07 1.3365622635319596e-06 0.0223" />
+    <points>
+      <point xy="0.0713295042514801 0.02317599393427372" />
+        <point xy="-0.02317650057375431 0.07132899761199951" />
+        <point xy="-0.0713294968008995 -0.023176006972789764" />
+        <point xy="0.02317649871110916 -0.07132899016141891" />
+    </points>
+    <material name="plastic" />
+  </planar_surface>
+
+</robot>
