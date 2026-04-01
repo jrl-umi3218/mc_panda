@@ -1,1 +1,1 @@
-Tool_Panda_Hand: [json, "@MODULE_INSTALL_LOCATION@/yaml/panda_hand.yaml"]
+Panda_Tool_Hand: [json, "@MODULE_INSTALL_LOCATION@/yaml/panda_hand.yaml"]

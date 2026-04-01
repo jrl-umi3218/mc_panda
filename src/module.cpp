@@ -51,7 +51,15 @@ extern "C"
             mc_rbdyn::RobotModulePtr tool_rm = nullptr;
             if(tool == T::Hand)
             {
-              tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Tool_Panda_Hand");
+              tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Hand");
+            }
+            else if(tool == T::Pump)
+            {
+              tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Pump");
+            }
+            else if(tool == T::Foot)
+            {
+              tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Foot");
             }
 
             if(tool_rm == nullptr)
@@ -63,7 +71,7 @@ extern "C"
 
               return new mc_rbdyn::RobotModule(
                   robot_rm->connect(
-                  *tool_rm, "panda_link8", "panda_hand_connector", "",
+                  *tool_rm, "panda_link8", "tool_connector", "",
                   mc_rbdyn::RobotModule::ConnectionParameters{}.name(robot_name).X_other_connection(sva::PTransformd::Identity())));
             }
           };
