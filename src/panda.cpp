@@ -11,37 +11,11 @@ namespace fs = std::filesystem;
 namespace mc_panda
 {
 
-inline static std::string pandaVariant(bool pump, bool foot, bool hand)
+PandaRobotModule::PandaRobotModule(const std::string & _name, bool pump, bool foot, bool hand, const std::string & _urdf_path, const std::string & _rsdf_base_path, const std::string & _calib_path)
+: RobotModule(_urdf_path, _name)
 {
-  if(pump && !foot && !hand)
-  {
-    mc_rtc::log::info("PandaRobotModule uses the panda variant: 'panda_pump'");
-    return "panda_pump";
-  }
-  if(!pump && foot && !hand)
-  {
-    mc_rtc::log::info("PandaRobotModule uses the panda variant: 'panda_foot'");
-    return "panda_foot";
-  }
-  if(!pump && !foot && hand)
-  {
-    mc_rtc::log::info("PandaRobotModule uses the panda variant: 'panda_hand'");
-    return "panda_hand";
-  }
-  if(!pump && !foot && !hand)
-  {
-    mc_rtc::log::info("PandaRobotModule uses the panda variant: 'panda_default'");
-    return "panda_default";
-  }
-  mc_rtc::log::error("PandaRobotModule does not provide this panda variant...");
-  return "";
-}
-
-PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand, const std::string & _urdf_path, const std::string & _rsdf_base_path, const std::string & _calib_path)
-: RobotModule(_urdf_path, pandaVariant(pump, foot, hand))
-{
-  this->urdf_path = _urdf_path + "/urdf/" + name + ".urdf";
-  this->rsdf_dir = _rsdf_base_path + "/rsdf/" + name + "/";
+  this->urdf_path = _urdf_path + "/urdf/panda_default.urdf";
+  this->rsdf_dir = _rsdf_base_path + "/rsdf/panda_default/";
   this->calib_dir = _calib_path + "/calib";
 
   _real_urdf = this->urdf_path;
