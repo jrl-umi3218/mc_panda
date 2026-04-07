@@ -3,6 +3,8 @@
 #include <mc_panda/devices/Robot.h>
 #include <mc_rbdyn/rpy_utils.h>
 #include <mc_rtc/constants.h>
+#include <mc_rtc/io_utils.h>
+#include <mc_rbdyn/RobotLoader.h>
 
 #include <RBDyn/parsers/urdf.h>
 
@@ -11,7 +13,7 @@ namespace fs = std::filesystem;
 namespace mc_panda
 {
 
-PandaRobotModule::PandaRobotModule(const std::string & _name, bool pump, bool foot, bool hand, const std::string & _urdf_path, const std::string & _rsdf_base_path, const std::string & _calib_path)
+PandaRobotModule::PandaRobotModule(const std::string & _name, const std::string & _urdf_path, const std::string & _rsdf_base_path, const std::string & _calib_path)
 : RobotModule(_urdf_path, _name)
 {
   this->urdf_path = _urdf_path + "/urdf/panda_default.urdf";
@@ -86,14 +88,14 @@ PandaRobotModule::PandaRobotModule(const std::string & _name, bool pump, bool fo
     }
   }
 
-  if(foot)
-  {
-    _convexHull["panda_foot"] = {"panda_foot", path + "/convex/panda_foot/panda_foot-ch.txt"};
-  }
-  if(pump)
-  {
-    _convexHull["panda_pump"] = {"panda_pump", path + "/convex/panda_pump/panda_pump-ch.txt"};
-  }
+  // if(foot)
+  // {
+  //   _convexHull["panda_foot"] = {"panda_foot", path + "/convex/panda_foot/panda_foot-ch.txt"};
+  // }
+  // if(pump)
+  // {
+  //   _convexHull["panda_pump"] = {"panda_pump", path + "/convex/panda_pump/panda_pump-ch.txt"};
+  // }
 
   // By default we use very conservative self-collision shapes (capsules) defined in the urdf
   // These match the ones used internally by the robot such that we do not trigger
@@ -119,28 +121,28 @@ PandaRobotModule::PandaRobotModule(const std::string & _name, bool pump, bool fo
   // clang-format on
 
   /* Additional self collisions */
-  if(pump)
-  {
-    // FIXME No pump convex ATM
-    //_commonSelfCollisions.push_back({"panda_link0", "pump", i, s, d)};
-    //_commonSelfCollisions.push_back({"panda_link1", "pump", i, s, d)};
-    //_commonSelfCollisions.push_back({"panda_link2", "pump", i, s, d)};
-    //_commonSelfCollisions.push_back({"panda_link3", "pump", i, s, d)};
-  }
-  if(foot)
-  {
-    _commonSelfCollisions.push_back({"panda_link0", "foot", i, s, d});
-    _commonSelfCollisions.push_back({"panda_link1", "foot", i, s, d});
-    _commonSelfCollisions.push_back({"panda_link2", "foot", i, s, d});
-    _commonSelfCollisions.push_back({"panda_link3", "foot", i, s, d});
-  }
-  if(hand)
-  {
-    _commonSelfCollisions.push_back({"panda_link0", "hand", i, s, d});
-    _commonSelfCollisions.push_back({"panda_link1", "hand", i, s, d});
-    _commonSelfCollisions.push_back({"panda_link2", "hand", i, s, d});
-    _commonSelfCollisions.push_back({"panda_link3", "hand", i, s, d});
-  }
+  // if(pump)
+  // {
+  //   // FIXME No pump convex ATM
+  //   //_commonSelfCollisions.push_back({"panda_link0", "pump", i, s, d)};
+  //   //_commonSelfCollisions.push_back({"panda_link1", "pump", i, s, d)};
+  //   //_commonSelfCollisions.push_back({"panda_link2", "pump", i, s, d)};
+  //   //_commonSelfCollisions.push_back({"panda_link3", "pump", i, s, d)};
+  // }
+  // if(foot)
+  // {
+  //   _commonSelfCollisions.push_back({"panda_link0", "foot", i, s, d});
+  //   _commonSelfCollisions.push_back({"panda_link1", "foot", i, s, d});
+  //   _commonSelfCollisions.push_back({"panda_link2", "foot", i, s, d});
+  //   _commonSelfCollisions.push_back({"panda_link3", "foot", i, s, d});
+  // }
+  // if(hand)
+  // {
+  //   _commonSelfCollisions.push_back({"panda_link0", "hand", i, s, d});
+  //   _commonSelfCollisions.push_back({"panda_link1", "hand", i, s, d});
+  //   _commonSelfCollisions.push_back({"panda_link2", "hand", i, s, d});
+  //   _commonSelfCollisions.push_back({"panda_link3", "hand", i, s, d});
+  // }
 
   _commonSelfCollisions = _minimalSelfCollisions;
 
@@ -151,24 +153,99 @@ PandaRobotModule::PandaRobotModule(const std::string & _name, bool pump, bool fo
 
   // NOTE: this is a joint-space sensor and not attached to a specific Cartesian link with a certain transformation
   _devices.emplace_back(new mc_panda::Robot());
-  if(pump)
-  {
-    /* Pump device */
-    _devices.emplace_back(new mc_panda::Pump("panda_link8", sva::PTransformd::Identity()));
-  }
-
-  /* Grippers */
-  if(hand)
-  {
-    // Module wide gripper configuration
-    _gripperSafety = {0.15, 1.0};
-    _grippers = {{"gripper", {"panda_finger_joint1"}, false}};
-    _ref_joint_order.push_back("panda_finger_joint1");
-    _ref_joint_order.push_back("panda_finger_joint2");
-  }
+  // if(pump)
+  // {
+  //   /* Pump device */
+  //   _devices.emplace_back(new mc_panda::Pump("panda_link8", sva::PTransformd::Identity()));
+  // }
+  //
+  // /* Grippers */
+  // if(hand)
+  // {
+  //   // Module wide gripper configuration
+  //   _gripperSafety = {0.15, 1.0};
+  //   _grippers = {{"gripper", {"panda_finger_joint1"}, false}};
+  //   _ref_joint_order.push_back("panda_finger_joint1");
+  //   _ref_joint_order.push_back("panda_finger_joint2");
+  // }
 
   mc_rtc::log::success("PandaRobotModule uses urdf_path {}", urdf_path);
   mc_rtc::log::success("PandaRobotModule uses rsdf_dir {}", rsdf_dir);
 }
 
+
+
+mc_rbdyn::RobotModule * create(const std::string & n, const std::string & _urdf_path, const std::string & _rsdf_path, const std::string & _calib_path)
+{
+  using namespace mc_panda;
+  using R = PandaRobots;
+  using T = Tools;
+
+  mc_rbdyn::RobotModule * result = nullptr;
+  bool found = false;
+
+  ForAllVariants([&](PandaRobots robot, Tools tool)
+  {
+    if(found) return; // already found, skip
+
+    auto module_name = ModuleNameFromParams(robot, tool);
+    if(module_name == n)
+    {
+      found = true;
+      auto robot_name = RobotNameFromParams(robot, tool);
+
+      auto urdf_path = _urdf_path.empty() ? (robot == R::FR1 ? FR1_DESCRIPTION_PATH : FR3_DESCRIPTION_PATH) : _urdf_path;
+      auto rsdf_path = _rsdf_path.empty() ? (robot == R::FR1 ? FR1_DESCRIPTION_PATH : FR3_DESCRIPTION_PATH) : _rsdf_path;
+      auto calib_path = _calib_path.empty() ? (robot == R::FR1 ? FR1_DESCRIPTION_PATH : FR3_DESCRIPTION_PATH) : _calib_path;
+
+      mc_rbdyn::RobotModule * robot_rm = new PandaRobotModule(robot_name, urdf_path, rsdf_path, calib_path);
+
+      mc_rbdyn::RobotModulePtr tool_rm = nullptr;
+      if(tool == T::Hand)
+      {
+        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Hand");
+      }
+      else if(tool == T::Pump)
+      {
+        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Pump");
+      }
+      else if(tool == T::Foot)
+      {
+        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Foot");
+      }
+
+      if(tool_rm == nullptr)
+      {
+        result = robot_rm;
+      }
+      else
+      {
+        result = new mc_rbdyn::RobotModule(
+          robot_rm->connect(
+            *tool_rm, "panda_link8", "tool_connector", "",
+            mc_rbdyn::RobotModule::ConnectionParameters{}.name(robot_name).X_other_connection(sva::PTransformd::Identity())));
+      }
+    }
+  });
+
+  if(result)
+  {
+    return result;
+  }
+  else
+  {
+    mc_rtc::log::error("[mc_panda] Cannot create a robot module with name '{}'", n);
+    // Optionally, print available variants:
+    std::string variants;
+    ForAllVariants([&](PandaRobots robot, Tools tool)
+    {
+      variants += "- " + ModuleNameFromParams(robot, tool) + "\n";
+    });
+    mc_rtc::log::info("Available variants are:\n{}", variants);
+    return nullptr;
+  }
+}
+
 } // namespace mc_panda
+
+
