@@ -15,8 +15,11 @@ add_subdirectory(data)
 add_subdirectory(src)
 add_subdirectory(cmake)
 
-if(BUILD_TESTING)
-  add_subdirectory(tests)
-endif()
+# FIXME: testing depends on installed files, robot aliases, etc
+# To test the robot module at build time, we would need to have the whole module in the build folder
+# which is not trivial to achieve / not very representative of the final installed module either
+# if(BUILD_TESTING)
+#   add_subdirectory(tests)
+# endif()
 
 install(FILES etc/ForceSensorCalibration/panda_default.yaml DESTINATION ${MC_CONTROLLER_RUNTIME_INSTALL_PREFIX}/ForceSensorCalibration/)
