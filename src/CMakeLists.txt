@@ -65,6 +65,9 @@ install(TARGETS mc_panda
 add_robot(panda module.cpp "")
 target_link_libraries(panda PRIVATE mc_panda::panda)
 
+add_robot(panda_pump panda_pump.cpp "")
+target_link_libraries(panda_pump PRIVATE mc_panda::devices)
+
 # Panda custom states library
 add_subdirectory(states)
 

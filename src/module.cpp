@@ -55,6 +55,8 @@ extern "C"
             }
             else if(tool == T::Pump)
             {
+              // FIXME: needs a Pump device
+              // Ideally we would make it a plugin also, such that it can be loaded from yaml
               tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Pump");
             }
             else if(tool == T::Foot)
