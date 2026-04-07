@@ -1,5 +1,5 @@
 add_executable(test_panda_module test_module.cpp)
-target_link_libraries(test_panda_module PRIVATE mc_rtc::mc_rbdyn)
+target_link_libraries(test_panda_module PRIVATE mc_panda::panda)
 configure_file(test_module.in.h ${CMAKE_CURRENT_BINARY_DIR}/panda/test_module.cmake.h)
 file(GENERATE
      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/panda/$<CONFIGURATION>/test_module.h
