@@ -69,11 +69,17 @@ inline static std::string ModuleNameFromParams(PandaRobots robot, Tools tool, co
   return prefix + to_string(robot) + "_" + to_string(tool);
 }
 
+inline static std::string to_lower_case(std::string name)
+{
+  std::transform(name.begin(), name.end(), name.begin(),
+    [](unsigned char c){ return std::tolower(c); });
+  return name;
+}
+
 inline static std::string RobotNameFromParams(PandaRobots robot, Tools tool)
 {
   auto name = ModuleNameFromParams(robot, tool);
-  std::transform(name.begin(), name.end(), name.begin(),
-    [](unsigned char c){ return std::tolower(c); });
+  to_lower_case(name);
   return name;
 }
 
