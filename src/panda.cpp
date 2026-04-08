@@ -153,21 +153,6 @@ PandaRobotModule::PandaRobotModule(const std::string & _name, const std::string 
 
   // NOTE: this is a joint-space sensor and not attached to a specific Cartesian link with a certain transformation
   _devices.emplace_back(new mc_panda::Robot());
-  // if(pump)
-  // {
-  //   /* Pump device */
-  //   _devices.emplace_back(new mc_panda::Pump("panda_link8", sva::PTransformd::Identity()));
-  // }
-  //
-  // /* Grippers */
-  // if(hand)
-  // {
-  //   // Module wide gripper configuration
-  //   _gripperSafety = {0.15, 1.0};
-  //   _grippers = {{"gripper", {"panda_finger_joint1"}, false}};
-  //   _ref_joint_order.push_back("panda_finger_joint1");
-  //   _ref_joint_order.push_back("panda_finger_joint2");
-  // }
 
   mc_rtc::log::success("PandaRobotModule uses urdf_path {}", urdf_path);
   mc_rtc::log::success("PandaRobotModule uses rsdf_dir {}", rsdf_dir);
