@@ -8,3 +8,8 @@ fixed: true
 
 # Default orientation (quaternion) and position of the floating base
 default_attitude: [1., 0., 0., 0., 0., 0., 0.]
+
+convexHulls:
+  panda_foot:
+    - panda_foot
+    - "@MODULE_INSTALL_LOCATION@/convex/panda_foot/panda_foot-ch.txt"

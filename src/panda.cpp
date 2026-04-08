@@ -73,7 +73,7 @@ PandaRobotModule::PandaRobotModule(const std::string & _name, const std::string 
       mc_rbdyn::ForceSensor("LeftHandForceSensor", "panda_link7",
                             sva::PTransformd(mc_rbdyn::rpyToMat(3.14, 0.0, 0.0), Eigen::Vector3d(0, 0, -0.04435))));
 
-  // Add convex shapes from sch files to _convexHull
+  // Add convex shapes from sch files to _convexHull if they exist (they do for FR1)
   // NOTE that these collision shapes cannot be used directly on the real robot as the embedded controller
   // independently checks for collision based on capsules.
   auto convexPath = path + "/convex/panda_default";
@@ -87,15 +87,6 @@ PandaRobotModule::PandaRobotModule(const std::string & _name, const std::string 
       _collisionTransforms[colName] = sva::PTransformd::Identity();
     }
   }
-
-  // if(foot)
-  // {
-  //   _convexHull["panda_foot"] = {"panda_foot", path + "/convex/panda_foot/panda_foot-ch.txt"};
-  // }
-  // if(pump)
-  // {
-  //   _convexHull["panda_pump"] = {"panda_pump", path + "/convex/panda_pump/panda_pump-ch.txt"};
-  // }
 
   // By default we use very conservative self-collision shapes (capsules) defined in the urdf
   // These match the ones used internally by the robot such that we do not trigger
