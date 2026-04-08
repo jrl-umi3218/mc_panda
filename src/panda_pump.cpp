@@ -22,6 +22,8 @@ PandaPumpRobotModule::PandaPumpRobotModule()
   /* Pump device */
   _devices.emplace_back(new mc_panda::Pump("panda_pump", sva::PTransformd::Identity()));
 
+  _convexHull["panda_pump"] = {"panda_pump", path + "/convex/panda_pump/panda_pump-ch.txt"};
+
   mc_rtc::log::success("PandaPumpRobotModule uses urdf_path {}", urdf_path);
   mc_rtc::log::success("PandaPumpRobotModule uses rsdf_dir {}", rsdf_dir);
 }
