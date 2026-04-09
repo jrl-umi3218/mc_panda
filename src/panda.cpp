@@ -200,6 +200,10 @@ mc_rbdyn::RobotModule * create(const std::string & n, const std::optional<PathsC
       {
         tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Foot");
       }
+      else if(tool == T::Mukca)
+      {
+        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Mukca");
+      }
 
       if(tool_rm == nullptr)
       {

@@ -29,22 +29,24 @@ static std::string to_string(PandaRobots robots)
 
 enum class Tools
 {
-  Default, Hand, Pump, Foot
+  Default, Hand, Pump, Foot, Mukca
 };
 
 static std::string to_string(Tools tools)
 {
-  using R = Tools;
+  using T = Tools;
   switch(tools)
   {
-    case R::Default:
+    case T::Default:
       return "Default";
-    case R::Hand:
+    case T::Hand:
       return "Hand";
-    case R::Pump:
+    case T::Pump:
       return "Pump";
-    case R::Foot:
+    case T::Foot:
       return "Foot";
+    case T::Mukca:
+      return "Mukca";
     default:
       return "UnknownTool";
   }
@@ -57,7 +59,7 @@ static void ForAllVariants(Callback cb)
   using T = Tools;
   for(R robot : {R::FR1, R::FR3})
   {
-    for(T tool : {T::Default, T::Hand, T::Pump, T::Foot})
+    for(T tool : {T::Default, T::Hand, T::Pump, T::Foot, T::Mukca})
     {
       cb(robot, tool);
     }
