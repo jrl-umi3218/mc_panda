@@ -83,12 +83,23 @@ inline static std::string RobotNameFromParams(PandaRobots robot, Tools tool)
   return name;
 }
 
+struct PathsConfiguration
+{
+  std::string urdf_base_path = "";
+  std::string convex_base_path = "";
+  std::string rsdf_base_path = "";
+  std::string calib_base_path = "";
+};
+
+static auto FR3DefaultPaths = PathsConfiguration{FR3_DESCRIPTION_PATH, FR3_DESCRIPTION_PATH, FR3_DESCRIPTION_PATH, FR3_DESCRIPTION_PATH};
+static auto FR1DefaultPaths = PathsConfiguration{FR1_DESCRIPTION_PATH, FR1_DESCRIPTION_PATH, FR1_DESCRIPTION_PATH, FR1_DESCRIPTION_PATH};
+
 struct MC_PANDA_DLLAPI PandaRobotModule : public mc_rbdyn::RobotModule
 {
 public:
-  PandaRobotModule(const std::string & name, const std::string & urdf_path = FR3_DESCRIPTION_PATH, const std::string & rsdf_base_path = FR3_DESCRIPTION_PATH, const std::string & calib_path = FR3_DESCRIPTION_PATH);
+  PandaRobotModule(const std::string & name, const PathsConfiguration & pathsConfig);
 };
 
-mc_rbdyn::RobotModule * create(const std::string & n, const std::string & _urdf_path = "", const std::string & _rsdf_path = "", const std::string & _calib_path = "");
+mc_rbdyn::RobotModule * create(const std::string & n, const std::optional<PathsConfiguration> & pathsConfig = std::nullopt);
 
 } // namespace mc_panda
