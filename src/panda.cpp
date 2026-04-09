@@ -13,14 +13,22 @@ namespace fs = std::filesystem;
 namespace mc_panda
 {
 
-PandaRobotModule::PandaRobotModule(const std::string & _name, const std::string & _urdf_path, const std::string & _rsdf_base_path, const std::string & _calib_path)
-: RobotModule(_urdf_path, _name)
+PandaRobotModule::PandaRobotModule(const std::string & _name, const PathsConfiguration & pathsConfig)
+: RobotModule(pathsConfig.urdf_base_path /* overridden within the constructor */, _name)
 {
-  this->urdf_path = _urdf_path + "/urdf/panda_default.urdf";
-  this->rsdf_dir = _rsdf_base_path + "/rsdf/panda_default/";
-  this->calib_dir = _calib_path + "/calib";
+  /*
+     In the default case all these base path point to the same robot_description folder, e.g FR3_DESCRIPTION_PATH
+     However it is possible to override any of these paths with custom locations.
+     This may be used to construct a module that has:
+     - A calibrated urdf file stored out-of-tree of the robot_description folder
+     - But still uses the meshes/convex/rsdf from the original robot_description
+  */
+  this->urdf_path = pathsConfig.urdf_base_path + "/urdf/panda_default.urdf";
+  this->rsdf_dir = pathsConfig.rsdf_base_path + "/rsdf/panda_default/";
+  this->calib_dir = pathsConfig.calib_base_path + "/calib/panda_default";
+  this->convex_dir = pathsConfig.convex_base_path + "/convex/panda_default";
+  this->_real_urdf = this->urdf_path;
 
-  _real_urdf = this->urdf_path;
   mc_rtc::log::success("PandaRobotModule loaded with name: {} from urdf: {}", name, this->urdf_path);
   init(rbd::parsers::from_urdf_file(this->urdf_path, true));
 
@@ -56,9 +64,6 @@ PandaRobotModule::PandaRobotModule(const std::string & _name, const std::string 
   _accelerationBounds.push_back(accelerationBoundsLower);
   _accelerationBounds.push_back(accelerationBoundsUpper);
 
-  rsdf_dir = path + "/rsdf/" + name + "/";
-  calib_dir = path + "/calib";
-
   _bodySensors.clear();
 
   _stance["panda_joint1"] = {mc_rtc::constants::toRad(0)};
@@ -76,12 +81,14 @@ PandaRobotModule::PandaRobotModule(const std::string & _name, const std::string 
   // Add convex shapes from sch files to _convexHull if they exist (they do for FR1)
   // NOTE that these collision shapes cannot be used directly on the real robot as the embedded controller
   // independently checks for collision based on capsules.
-  auto convexPath = path + "/convex/panda_default";
+  auto convexPath = this->convex_dir;
   for(const auto & b : mb.bodies())
   {
     auto ch = fs::path{convexPath} / (b.name() + "-ch.txt");
+    mc_rtc::log::info("Looking for convex {}", ch.string());
     if(fs::exists(ch))
     {
+      mc_rtc::log::success("found convex {}", ch.string());
       auto colName = "convex_" + b.name();
       _convexHull[colName] = {b.name(), ch.string()};
       _collisionTransforms[colName] = sva::PTransformd::Identity();
@@ -151,7 +158,7 @@ PandaRobotModule::PandaRobotModule(const std::string & _name, const std::string 
 
 
 
-mc_rbdyn::RobotModule * create(const std::string & n, const std::string & _urdf_path, const std::string & _rsdf_path, const std::string & _calib_path)
+mc_rbdyn::RobotModule * create(const std::string & n, const std::optional<PathsConfiguration> & pathsConfig)
 {
   using namespace mc_panda;
   using R = PandaRobots;
@@ -170,11 +177,15 @@ mc_rbdyn::RobotModule * create(const std::string & n, const std::string & _urdf_
       found = true;
       auto robot_name = RobotNameFromParams(robot, tool);
 
-      auto urdf_path = _urdf_path.empty() ? (robot == R::FR1 ? FR1_DESCRIPTION_PATH : FR3_DESCRIPTION_PATH) : _urdf_path;
-      auto rsdf_path = _rsdf_path.empty() ? (robot == R::FR1 ? FR1_DESCRIPTION_PATH : FR3_DESCRIPTION_PATH) : _rsdf_path;
-      auto calib_path = _calib_path.empty() ? (robot == R::FR1 ? FR1_DESCRIPTION_PATH : FR3_DESCRIPTION_PATH) : _calib_path;
-
-      mc_rbdyn::RobotModule * robot_rm = new PandaRobotModule(robot_name, urdf_path, rsdf_path, calib_path);
+      mc_rbdyn::RobotModule * robot_rm = nullptr;
+      if(pathsConfig)
+      {
+        robot_rm = new PandaRobotModule(robot_name, *pathsConfig);
+      }
+      else
+      {
+        robot_rm = new PandaRobotModule(robot_name, robot == R::FR1 ? FR1DefaultPaths : FR3DefaultPaths);
+      }
 
       mc_rbdyn::RobotModulePtr tool_rm = nullptr;
       if(tool == T::Hand)
