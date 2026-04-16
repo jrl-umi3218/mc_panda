@@ -204,6 +204,10 @@ mc_rbdyn::RobotModule * create(const std::string & n, const std::optional<PathsC
       {
         tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Mukca");
       }
+      else if(tool == T::PandaToPandaCalib)
+      {
+        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_PandaToPandaCalib");
+      }
 
       if(tool_rm == nullptr)
       {

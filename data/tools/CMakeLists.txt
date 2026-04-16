@@ -23,5 +23,6 @@ endmacro()
 add_yaml_module(panda_hand)
 add_yaml_module(panda_foot)
 add_yaml_module(panda_mukca)
+add_yaml_module(panda_to_panda_calib)
 # panda_pump is a c++ module, we only install urdf/rsdf/convex but no alias
 add_yaml_module(panda_pump)
