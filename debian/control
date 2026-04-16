@@ -1,6 +1,6 @@
 Source: mc-panda
 Priority: optional
-Maintainer: Pierre Gergondet <pierre.gergondet+ppa@gmail.com>
+Maintainer: Arnaud Tanguy <arn.tanguy+ppa@gmail.com>
 Standards-Version: 3.9.5
 Section: libs
 Homepage: https://github.com/jrl-umi3218/mc_panda
@@ -8,12 +8,9 @@ Vcs-Git: https://github.com/jrl-umi3218/mc_panda
 Vcs-Browser: https://github.com/jrl-umi3218/mc_panda
 Build-Depends: debhelper (>= 9),
                cmake,
-               ros-@ROS_DISTRO@-libfranka,
-               ros-@ROS_DISTRO@-franka-description,
-               ros-@ROS_DISTRO@-xacro,
                libmc-rtc-dev
 
 Package: mc-panda
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libmc-rtc-dev, ros-@ROS_DISTRO@-franka-description
+Depends: ${shlibs:Depends}, ${misc:Depends}, libmc-rtc-dev
 Description: Provides the Panda modules for mc_rtc
