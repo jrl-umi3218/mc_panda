@@ -1,0 +1,9 @@
+#pragma once
+
+namespace mc_panda
+{
+constexpr auto PANDA_DESCRIPTION_PATH = "@PANDA_DESCRIPTION_PATH@";
+constexpr auto FR1_DESCRIPTION_PATH = "@FR1_DESCRIPTION_PATH@";
+constexpr auto FR3_DESCRIPTION_PATH = "@FR3_DESCRIPTION_PATH@";
+constexpr auto TOOLS_DESCRIPTION_PATH = "@TOOLS_DESCRIPTION_PATH@";
+}

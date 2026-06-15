@@ -1,0 +1,22 @@
+# Location of data files, all path in the YAML file are
+# interpreted relative to this path unless they are absolute paths
+path: "@MODULE_INSTALL_LOCATION@"
+name: panda_hand
+urdf_path: urdf/panda_hand.urdf
+rsdf_dir: rsdf/panda_hand
+fixed: true
+
+grippers:
+  - name: gripper
+    joints: [panda_finger_joint1]
+    reverse_limits: false
+    safety: 
+      percentVMax: 0.15
+      actualCommandDiffTrigger: 1.0
+
+ref_joint_order:
+  - panda_finger_joint1
+  - panda_finger_joint2
+
+# Default orientation (quaternion) and position of the floating base
+default_attitude: [1., 0., 0., 0., 0., 0., 0.]

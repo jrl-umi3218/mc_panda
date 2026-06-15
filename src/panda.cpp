@@ -1,58 +1,36 @@
-#include "panda.h"
-#include "devices/Pump.h"
-#include "devices/Robot.h"
-
-#include "config.h"
-
-#ifndef M_PI
-#  include <boost/math/constants/constants.hpp>
-#  define M_PI boost::math::constants::pi<double>()
-#endif
-
+#include <mc_panda/panda.h>
+#include <mc_panda/devices/Pump.h>
+#include <mc_panda/devices/Robot.h>
 #include <mc_rbdyn/rpy_utils.h>
 #include <mc_rtc/constants.h>
+#include <mc_rtc/io_utils.h>
+#include <mc_rbdyn/RobotLoader.h>
 
 #include <RBDyn/parsers/urdf.h>
 
-#include <boost/filesystem.hpp>
-namespace bfs = boost::filesystem;
+namespace fs = std::filesystem;
 
-namespace mc_robots
+namespace mc_panda
 {
 
-inline static std::string pandaVariant(bool pump, bool foot, bool hand)
+PandaRobotModule::PandaRobotModule(const std::string & _name, const PathsConfiguration & pathsConfig)
+: RobotModule(pathsConfig.urdf_base_path /* overridden within the constructor */, _name)
 {
-  if(pump && !foot && !hand)
-  {
-    mc_rtc::log::info("PandaRobotModule uses the panda variant: 'panda_pump'");
-    return "panda_pump";
-  }
-  if(!pump && foot && !hand)
-  {
-    mc_rtc::log::info("PandaRobotModule uses the panda variant: 'panda_foot'");
-    return "panda_foot";
-  }
-  if(!pump && !foot && hand)
-  {
-    mc_rtc::log::info("PandaRobotModule uses the panda variant: 'panda_hand'");
-    return "panda_hand";
-  }
-  if(!pump && !foot && !hand)
-  {
-    mc_rtc::log::info("PandaRobotModule uses the panda variant: 'panda_default'");
-    return "panda_default";
-  }
-  mc_rtc::log::error("PandaRobotModule does not provide this panda variant...");
-  return "";
-}
+  /*
+     In the default case all these base path point to the same robot_description folder, e.g FR3_DESCRIPTION_PATH
+     However it is possible to override any of these paths with custom locations.
+     This may be used to construct a module that has:
+     - A calibrated urdf file stored out-of-tree of the robot_description folder
+     - But still uses the meshes/convex/rsdf from the original robot_description
+  */
+  this->urdf_path = pathsConfig.urdf_base_path + "/urdf/panda_default.urdf";
+  this->rsdf_dir = pathsConfig.rsdf_base_path + "/rsdf/panda_default/";
+  this->calib_dir = pathsConfig.calib_base_path + "/calib/panda_default";
+  this->convex_dir = pathsConfig.convex_base_path + "/convex/panda_default";
+  this->_real_urdf = this->urdf_path;
 
-PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
-: RobotModule(PANDA_DESCRIPTION_PATH, pandaVariant(pump, foot, hand))
-{
-  mc_rtc::log::success("PandaRobotModule loaded with name: {}", name);
-  urdf_path = path + "/" + name + ".urdf";
-  _real_urdf = urdf_path;
-  init(rbd::parsers::from_urdf_file(urdf_path, true));
+  mc_rtc::log::success("PandaRobotModule loaded with name: {} from urdf: {}", name, this->urdf_path);
+  init(rbd::parsers::from_urdf_file(this->urdf_path, true));
 
   // additional joint panda limits, see https://frankaemika.github.io/docs/control_parameters.html#constants
   using bound_t = mc_rbdyn::RobotModule::accelerationBounds_t::value_type;
@@ -86,9 +64,6 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
   _accelerationBounds.push_back(accelerationBoundsLower);
   _accelerationBounds.push_back(accelerationBoundsUpper);
 
-  rsdf_dir = path + "/rsdf/" + name + "/";
-  calib_dir = path + "/calib";
-
   _bodySensors.clear();
 
   _stance["panda_joint1"] = {mc_rtc::constants::toRad(0)};
@@ -103,28 +78,21 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
       mc_rbdyn::ForceSensor("LeftHandForceSensor", "panda_link7",
                             sva::PTransformd(mc_rbdyn::rpyToMat(3.14, 0.0, 0.0), Eigen::Vector3d(0, 0, -0.04435))));
 
-  // Add convex shapes from sch files to _convexHull
+  // Add convex shapes from sch files to _convexHull if they exist (they do for FR1)
   // NOTE that these collision shapes cannot be used directly on the real robot as the embedded controller
   // independently checks for collision based on capsules.
-  auto convexPath = path + "/convex/panda_default";
+  auto convexPath = this->convex_dir;
   for(const auto & b : mb.bodies())
   {
-    auto ch = bfs::path{convexPath} / (b.name() + "-ch.txt");
-    if(bfs::exists(ch))
+    auto ch = fs::path{convexPath} / (b.name() + "-ch.txt");
+    mc_rtc::log::info("Looking for convex {}", ch.string());
+    if(fs::exists(ch))
     {
+      mc_rtc::log::success("found convex {}", ch.string());
       auto colName = "convex_" + b.name();
       _convexHull[colName] = {b.name(), ch.string()};
       _collisionTransforms[colName] = sva::PTransformd::Identity();
     }
-  }
-
-  if(foot)
-  {
-    _convexHull["panda_foot"] = {"panda_foot", path + "/convex/panda_foot/panda_foot-ch.txt"};
-  }
-  if(pump)
-  {
-    _convexHull["panda_pump"] = {"panda_pump", path + "/convex/panda_pump/panda_pump-ch.txt"};
   }
 
   // By default we use very conservative self-collision shapes (capsules) defined in the urdf
@@ -151,28 +119,28 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
   // clang-format on
 
   /* Additional self collisions */
-  if(pump)
-  {
-    // FIXME No pump convex ATM
-    //_commonSelfCollisions.push_back({"panda_link0", "pump", i, s, d)};
-    //_commonSelfCollisions.push_back({"panda_link1", "pump", i, s, d)};
-    //_commonSelfCollisions.push_back({"panda_link2", "pump", i, s, d)};
-    //_commonSelfCollisions.push_back({"panda_link3", "pump", i, s, d)};
-  }
-  if(foot)
-  {
-    _commonSelfCollisions.push_back({"panda_link0", "foot", i, s, d});
-    _commonSelfCollisions.push_back({"panda_link1", "foot", i, s, d});
-    _commonSelfCollisions.push_back({"panda_link2", "foot", i, s, d});
-    _commonSelfCollisions.push_back({"panda_link3", "foot", i, s, d});
-  }
-  if(hand)
-  {
-    _commonSelfCollisions.push_back({"panda_link0", "hand", i, s, d});
-    _commonSelfCollisions.push_back({"panda_link1", "hand", i, s, d});
-    _commonSelfCollisions.push_back({"panda_link2", "hand", i, s, d});
-    _commonSelfCollisions.push_back({"panda_link3", "hand", i, s, d});
-  }
+  // if(pump)
+  // {
+  //   // FIXME No pump convex ATM
+  //   //_commonSelfCollisions.push_back({"panda_link0", "pump", i, s, d)};
+  //   //_commonSelfCollisions.push_back({"panda_link1", "pump", i, s, d)};
+  //   //_commonSelfCollisions.push_back({"panda_link2", "pump", i, s, d)};
+  //   //_commonSelfCollisions.push_back({"panda_link3", "pump", i, s, d)};
+  // }
+  // if(foot)
+  // {
+  //   _commonSelfCollisions.push_back({"panda_link0", "foot", i, s, d});
+  //   _commonSelfCollisions.push_back({"panda_link1", "foot", i, s, d});
+  //   _commonSelfCollisions.push_back({"panda_link2", "foot", i, s, d});
+  //   _commonSelfCollisions.push_back({"panda_link3", "foot", i, s, d});
+  // }
+  // if(hand)
+  // {
+  //   _commonSelfCollisions.push_back({"panda_link0", "hand", i, s, d});
+  //   _commonSelfCollisions.push_back({"panda_link1", "hand", i, s, d});
+  //   _commonSelfCollisions.push_back({"panda_link2", "hand", i, s, d});
+  //   _commonSelfCollisions.push_back({"panda_link3", "hand", i, s, d});
+  // }
 
   _commonSelfCollisions = _minimalSelfCollisions;
 
@@ -183,24 +151,96 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
 
   // NOTE: this is a joint-space sensor and not attached to a specific Cartesian link with a certain transformation
   _devices.emplace_back(new mc_panda::Robot());
-  if(pump)
-  {
-    /* Pump device */
-    _devices.emplace_back(new mc_panda::Pump("panda_link8", sva::PTransformd::Identity()));
-  }
-
-  /* Grippers */
-  if(hand)
-  {
-    // Module wide gripper configuration
-    _gripperSafety = {0.15, 1.0};
-    _grippers = {{"gripper", {"panda_finger_joint1"}, false}};
-    _ref_joint_order.push_back("panda_finger_joint1");
-    _ref_joint_order.push_back("panda_finger_joint2");
-  }
 
   mc_rtc::log::success("PandaRobotModule uses urdf_path {}", urdf_path);
   mc_rtc::log::success("PandaRobotModule uses rsdf_dir {}", rsdf_dir);
 }
 
-} // namespace mc_robots
+
+
+mc_rbdyn::RobotModule * create(const std::string & n, const std::optional<PathsConfiguration> & pathsConfig)
+{
+  using namespace mc_panda;
+  using R = PandaRobots;
+  using T = Tools;
+
+  mc_rbdyn::RobotModule * result = nullptr;
+  bool found = false;
+
+  ForAllVariants([&](PandaRobots robot, Tools tool)
+  {
+    if(found) return; // already found, skip
+
+    auto module_name = ModuleNameFromParams(robot, tool);
+    if(module_name == n)
+    {
+      found = true;
+      auto robot_name = RobotNameFromParams(robot, tool);
+
+      mc_rbdyn::RobotModule * robot_rm = nullptr;
+      if(pathsConfig)
+      {
+        robot_rm = new PandaRobotModule(robot_name, *pathsConfig);
+      }
+      else
+      {
+        robot_rm = new PandaRobotModule(robot_name, robot == R::FR1 ? FR1DefaultPaths : FR3DefaultPaths);
+      }
+
+      mc_rbdyn::RobotModulePtr tool_rm = nullptr;
+      if(tool == T::Hand)
+      {
+        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Hand");
+      }
+      else if(tool == T::Pump)
+      {
+        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Pump");
+      }
+      else if(tool == T::Foot)
+      {
+        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Foot");
+      }
+      else if(tool == T::Mukca)
+      {
+        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Mukca");
+      }
+      else if(tool == T::PandaToPandaCalib)
+      {
+        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_PandaToPandaCalib");
+      }
+
+      if(tool_rm == nullptr)
+      {
+        result = robot_rm;
+      }
+      else
+      {
+        result = new mc_rbdyn::RobotModule(
+          robot_rm->connect(
+            *tool_rm, "panda_link8", "tool_connector", "",
+            mc_rbdyn::RobotModule::ConnectionParameters{}.name(robot_name).X_other_connection(sva::PTransformd::Identity())));
+      }
+    }
+  });
+
+  if(result)
+  {
+    return result;
+  }
+  else
+  {
+    mc_rtc::log::error("[mc_panda] Cannot create a robot module with name '{}'", n);
+    // Optionally, print available variants:
+    std::string variants;
+    ForAllVariants([&](PandaRobots robot, Tools tool)
+    {
+      variants += "- " + ModuleNameFromParams(robot, tool) + "\n";
+    });
+    mc_rtc::log::info("Available variants are:\n{}", variants);
+    return nullptr;
+  }
+}
+
+} // namespace mc_panda
+
+

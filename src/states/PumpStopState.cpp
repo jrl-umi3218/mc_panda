@@ -1,6 +1,6 @@
-#include "PumpStopState.h"
+#include <mc_panda/states/PumpStopState.h>
 
-#include <devices/Pump.h>
+#include <mc_panda/devices/Pump.h>
 
 namespace mc_panda
 {
