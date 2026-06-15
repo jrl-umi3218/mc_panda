@@ -18,9 +18,10 @@ on:
     - v*
 jobs:
   package:
-    uses: jrl-umi3218/github-actions/.github/workflows/package-project.yml@master
+    # uses: jrl-umi3218/github-actions/.github/workflows/package-project.yml@master
+    uses: arntanguy/github-actions/.github/workflows/package-project.yml@topic/debug-packaging
     with:
-      with-ros: true
+      with-ros: false
       matrix: |
         {
           "dist": ["bionic", "focal"],
