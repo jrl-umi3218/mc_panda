@@ -9,7 +9,7 @@ Vcs-Browser: https://github.com/jrl-umi3218/mc_panda
 Build-Depends: debhelper (>= 9),
                cmake,
                libmc-rtc-dev,
-               libfranka-0.9.2-dev (<= 0.9.2)
+               libfranka-0.9.2-dev
 
 Package: mc-panda
 Architecture: any
