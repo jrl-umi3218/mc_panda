@@ -14,8 +14,7 @@
 
 #include <RBDyn/parsers/urdf.h>
 
-#include <boost/filesystem.hpp>
-namespace bfs = boost::filesystem;
+#include <filesystem>
 
 namespace mc_robots
 {
@@ -109,8 +108,8 @@ PandaRobotModule::PandaRobotModule(bool pump, bool foot, bool hand)
   auto convexPath = path + "/convex/panda_default";
   for(const auto & b : mb.bodies())
   {
-    auto ch = bfs::path{convexPath} / (b.name() + "-ch.txt");
-    if(bfs::exists(ch))
+    auto ch = std::filesystem::path{convexPath} / (b.name() + "-ch.txt");
+    if(std::filesystem::exists(ch))
     {
       auto colName = "convex_" + b.name();
       _convexHull[colName] = {b.name(), ch.string()};
