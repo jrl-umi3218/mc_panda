@@ -1,4 +1,4 @@
-mc-panda (1.1.1-1debian1) unstable; urgency=medium
+mc-panda (2.0.0-1debian1) unstable; urgency=medium
 
   * Major refactoring: include both FR1 and FR3 models
 
