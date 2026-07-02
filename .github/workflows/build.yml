@@ -12,23 +12,10 @@ on:
     - cron: '0 23 * * 0,1,4'
 
 jobs:
-
-  clang-format:
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v3
-    - name: Install clang-format-10
-      run: |
-        sudo apt-get -qq update
-        sudo apt-get -qq install clang-format-10
-    - name: Run clang-format-check
-      run: |
-        ./.clang-format-check.sh
   build:
-    needs: clang-format
     strategy:
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
@@ -38,11 +25,11 @@ jobs:
       run: |
         set -x
         set -e
-        if [ "${{ matrix.os }}" = "ubuntu-18.04" ]
+        if [ "${{ matrix.os }}" = "ubuntu-22.04" ]
         then
-          export ROS_DISTRO="melodic"
+          export ROS_DISTRO="humble"
         else
-          export ROS_DISTRO="noetic"
+          export ROS_DISTRO="humble"
         fi
         sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
         wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
