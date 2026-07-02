@@ -1,5 +1,11 @@
 mc-panda (1.1.1-1debian1) unstable; urgency=medium
 
+  * Major refactoring: include both FR1 and FR3 models
+
+ -- Arnaud TANGUY <arn.tanguy+ppa@gmail.com>  Thu, 02 Jul 2026 19:40:43 +0000
+
+mc-panda (1.1.1-1debian1) unstable; urgency=medium
+
   * Minor update for packaging purpose
 
  -- Pierre Gergondet <pierre.gergondet+ppa@gmail.com>  Mon, 17 Apr 2023 22:52:43 +0200
