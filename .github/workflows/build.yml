@@ -1,15 +1,16 @@
 name: CI of mc_panda
 
 on:
-  push:
-    branches:
-      - '**'
   pull_request:
     branches:
       - '**'
   schedule:
     # Run on Sunday, Tuesday and Thursday nights
     - cron: '0 23 * * 0,1,4'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
