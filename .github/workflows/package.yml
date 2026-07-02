@@ -16,10 +16,14 @@ on:
     - "**"
     tags:
     - v*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   package:
-    # uses: jrl-umi3218/github-actions/.github/workflows/package-project.yml@master
-    uses: arntanguy/github-actions/.github/workflows/package-project.yml@topic/debug-packaging
+    uses: jrl-umi3218/github-actions/.github/workflows/package-project.yml@master
     with:
       with-ros: false
       latest-cmake: true
