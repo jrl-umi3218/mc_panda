@@ -31,7 +31,7 @@ This package provides the following robot modules for [mc_rtc]:
 
 ### Naming Convention Update (between v1.1.1 and v2.0.0)
 
-Robot modules now follow the naming convention:  
+Robot modules now follow the naming convention:
 ```
 Panda_<Robot>_<Tool>
 ```
@@ -46,7 +46,7 @@ where `<Robot>` is one of `FR1`, `FR3` and `<Tool>` is one of `Default`, `Hand`,
 | PandaPump     | Panda_FR3_Pump            |
 | PandaFoot     | Panda_FR3_Foot            |
 
-If you previously used e.g. `PandaDefault`, update your configuration to use `Panda_FR3_Default`.  
+If you previously used e.g. `PandaDefault`, update your configuration to use `Panda_FR3_Default`.
 For FR1 robots, use the corresponding `Panda_FR1_*` variant.
 
 ## Tools
@@ -128,7 +128,7 @@ If this implementation is useful for your research, please cite the related publ
 
 ```
 @INPROCEEDINGS{Dehio2021ICRA,
-  title={Robot-Safe Impacts with Soft Contacts Based on Learned Deformations}, 
+  title={Robot-Safe Impacts with Soft Contacts Based on Learned Deformations},
   author={Dehio, Niels and Kheddar, Abderrahmane},
   booktitle={IEEE Int. Conf. on Robotics and Automation},
   pages={1357-1363},

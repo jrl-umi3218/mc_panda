@@ -1,6 +1,6 @@
 macro(add_panda_fsm_state NAME)
-  add_fsm_state(${NAME} ${CMAKE_CURRENT_SOURCE_DIR}/${NAME}.cpp)
-  target_link_libraries(${NAME} PUBLIC mc_panda::devices)
+    add_fsm_state(${NAME} ${CMAKE_CURRENT_SOURCE_DIR}/${NAME}.cpp)
+    target_link_libraries(${NAME} PUBLIC mc_panda::devices)
 endmacro()
 
 add_panda_fsm_state(PandaWaitForCollisionState)

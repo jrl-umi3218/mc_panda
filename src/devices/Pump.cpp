@@ -83,97 +83,103 @@ bool Pump::connect(const std::string & ip)
     return false;
   }
   connected_ = true;
-  stateThread_ = std::thread([this]() {
-    while(connected_)
-    {
-      try
+  stateThread_ = std::thread(
+      [this]()
       {
-        auto stateIn = gripper_->readOnce();
-        std::unique_lock<std::mutex> lock(stateMutex_);
-        state_ = stateIn;
-        status_ = Status(static_cast<StatusInt>(state_.device_status));
-      }
-      catch(const franka::NetworkException & exc)
+        while(connected_)
+        {
+          try
+          {
+            auto stateIn = gripper_->readOnce();
+            std::unique_lock<std::mutex> lock(stateMutex_);
+            state_ = stateIn;
+            status_ = Status(static_cast<StatusInt>(state_.device_status));
+          }
+          catch(const franka::NetworkException & exc)
+          {
+            mc_rtc::log::error("{} connection lost, failed to read state: {}", name_, exc.what());
+          }
+        }
+      });
+  commandThread_ = std::thread(
+      [this]()
       {
-        mc_rtc::log::error("{} connection lost, failed to read state: {}", name_, exc.what());
-      }
-    }
-  });
-  commandThread_ = std::thread([this]() {
-    while(connected_)
-    {
-      if(busy_)
+        while(connected_)
+        {
+          if(busy_)
+          {
+            bool s = false;
+            std::string error;
+            try
+            {
+              s = command_.callback();
+              error = "";
+            }
+            catch(const franka::CommandException & exc)
+            {
+              error = exc.what();
+              mc_rtc::log::error("{} {} command failed: {}", name_, command_.name, error);
+            }
+            catch(const franka::NetworkException & exc)
+            {
+              error = exc.what();
+              mc_rtc::log::error("{} connection lost, failed to execute {} command: {}", name_, command_.name, error);
+            }
+            if(!interrupted_)
+            {
+              success_ = s;
+              error_ = error;
+            }
+            else
+            {
+              interrupted_ = false;
+            }
+            busy_ = false;
+          }
+          else
+          {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          }
+        }
+      });
+  interruptThread_ = std::thread(
+      [this]()
       {
-        bool s = false;
-        std::string error;
-        try
+        while(connected_)
         {
-          s = command_.callback();
-          error = "";
+          if(interrupted_)
+          {
+            bool busy = busy_;
+            bool s = false;
+            std::string error;
+            try
+            {
+              s = gripper_->stop();
+              error = "";
+            }
+            catch(const franka::CommandException & exc)
+            {
+              error = exc.what();
+              mc_rtc::log::error("{} stop command failed: {}", name_, error);
+            }
+            catch(const franka::NetworkException & exc)
+            {
+              error = exc.what();
+              mc_rtc::log::error("{} connection lost, failed to execute stop command: {}", name_, error);
+            }
+            success_ = s;
+            error_ = error;
+            if(!busy)
+            {
+              interrupted_ = false;
+            }
+          }
+          else
+          {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          }
         }
-        catch(const franka::CommandException & exc)
-        {
-          error = exc.what();
-          mc_rtc::log::error("{} {} command failed: {}", name_, command_.name, error);
-        }
-        catch(const franka::NetworkException & exc)
-        {
-          error = exc.what();
-          mc_rtc::log::error("{} connection lost, failed to execute {} command: {}", name_, command_.name, error);
-        }
-        if(!interrupted_)
-        {
-          success_ = s;
-          error_ = error;
-        }
-        else
-        {
-          interrupted_ = false;
-        }
-        busy_ = false;
-      }
-      else
-      {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      }
-    }
-  });
-  interruptThread_ = std::thread([this]() {
-    while(connected_)
-    {
-      if(interrupted_)
-      {
-        bool busy = busy_;
-        bool s = false;
-        std::string error;
-        try
-        {
-          s = gripper_->stop();
-          error = "";
-        }
-        catch(const franka::CommandException & exc)
-        {
-          error = exc.what();
-          mc_rtc::log::error("{} stop command failed: {}", name_, error);
-        }
-        catch(const franka::NetworkException & exc)
-        {
-          error = exc.what();
-          mc_rtc::log::error("{} connection lost, failed to execute stop command: {}", name_, error);
-        }
-        success_ = s;
-        error_ = error;
-        if(!busy)
-        {
-          interrupted_ = false;
-        }
-      }
-      else
-      {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      }
-    }
-  });
+      });
   return true;
 }
 

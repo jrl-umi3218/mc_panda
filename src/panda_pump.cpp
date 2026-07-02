@@ -1,18 +1,17 @@
-#include <mc_panda/panda_pump.h>
 #include <mc_panda/devices/Pump.h>
+#include <mc_panda/panda_pump.h>
 #include <mc_rbdyn/rpy_utils.h>
 #include <mc_rtc/constants.h>
 
-#include <RBDyn/parsers/urdf.h>
 #include <mc_panda/config.h>
 #include <mc_rbdyn/RobotModule.h>
 #include <mc_rbdyn/RobotModuleMacros.h>
+#include <RBDyn/parsers/urdf.h>
 
 namespace mc_panda
 {
 
-PandaPumpRobotModule::PandaPumpRobotModule()
-: mc_rbdyn::RobotModule(mc_panda::TOOLS_DESCRIPTION_PATH, "panda_pump")
+PandaPumpRobotModule::PandaPumpRobotModule() : mc_rbdyn::RobotModule(mc_panda::TOOLS_DESCRIPTION_PATH, "panda_pump")
 {
   mc_rtc::log::success("PandaPumpRobotModule loaded with name: {} from urdf: {}", name, this->urdf_path);
   init(rbd::parsers::from_urdf_file(this->urdf_path, true));
@@ -29,8 +28,6 @@ PandaPumpRobotModule::PandaPumpRobotModule()
 }
 
 } // namespace mc_panda
-
-
 
 // Export module
 extern "C"
@@ -53,7 +50,8 @@ extern "C"
     }
     else
     {
-      mc_rtc::log::error_and_throw<std::runtime_error>("No module with name {} found in PandaPumpRobotModule module", n);
+      mc_rtc::log::error_and_throw<std::runtime_error>("No module with name {} found in PandaPumpRobotModule module",
+                                                       n);
     }
   }
 }
