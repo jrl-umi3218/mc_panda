@@ -1,10 +1,10 @@
-#include <mc_panda/panda.h>
 #include <mc_panda/devices/Pump.h>
 #include <mc_panda/devices/Robot.h>
+#include <mc_panda/panda.h>
+#include <mc_rbdyn/RobotLoader.h>
 #include <mc_rbdyn/rpy_utils.h>
 #include <mc_rtc/constants.h>
 #include <mc_rtc/io_utils.h>
-#include <mc_rbdyn/RobotLoader.h>
 
 #include <RBDyn/parsers/urdf.h>
 
@@ -157,8 +157,6 @@ PandaRobotModule::PandaRobotModule(const std::string & _name, const PathsConfigu
   mc_rtc::log::success("PandaRobotModule uses rsdf_dir {}", rsdf_dir);
 }
 
-
-
 mc_rbdyn::RobotModule * create(const std::string & n, const std::optional<PathsConfiguration> & pathsConfig)
 {
   using namespace mc_panda;
@@ -168,61 +166,63 @@ mc_rbdyn::RobotModule * create(const std::string & n, const std::optional<PathsC
   mc_rbdyn::RobotModule * result = nullptr;
   bool found = false;
 
-  ForAllVariants([&](PandaRobots robot, Tools tool)
-  {
-    if(found) return; // already found, skip
+  ForAllVariants(
+      [&](PandaRobots robot, Tools tool)
+      {
+        if(found) return; // already found, skip
 
-    auto module_name = ModuleNameFromParams(robot, tool);
-    if(module_name == n)
-    {
-      found = true;
-      auto robot_name = RobotNameFromParams(robot, tool);
+        auto module_name = ModuleNameFromParams(robot, tool);
+        if(module_name == n)
+        {
+          found = true;
+          auto robot_name = RobotNameFromParams(robot, tool);
 
-      mc_rbdyn::RobotModule * robot_rm = nullptr;
-      if(pathsConfig)
-      {
-        robot_rm = new PandaRobotModule(robot_name, *pathsConfig);
-      }
-      else
-      {
-        robot_rm = new PandaRobotModule(robot_name, robot == R::FR1 ? FR1DefaultPaths : FR3DefaultPaths);
-      }
+          mc_rbdyn::RobotModule * robot_rm = nullptr;
+          if(pathsConfig)
+          {
+            robot_rm = new PandaRobotModule(robot_name, *pathsConfig);
+          }
+          else
+          {
+            robot_rm = new PandaRobotModule(robot_name, robot == R::FR1 ? FR1DefaultPaths : FR3DefaultPaths);
+          }
 
-      mc_rbdyn::RobotModulePtr tool_rm = nullptr;
-      if(tool == T::Hand)
-      {
-        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Hand");
-      }
-      else if(tool == T::Pump)
-      {
-        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Pump");
-      }
-      else if(tool == T::Foot)
-      {
-        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Foot");
-      }
-      else if(tool == T::Mukca)
-      {
-        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Mukca");
-      }
-      else if(tool == T::PandaToPandaCalib)
-      {
-        tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_PandaToPandaCalib");
-      }
+          mc_rbdyn::RobotModulePtr tool_rm = nullptr;
+          if(tool == T::Hand)
+          {
+            tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Hand");
+          }
+          else if(tool == T::Pump)
+          {
+            tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Pump");
+          }
+          else if(tool == T::Foot)
+          {
+            tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Foot");
+          }
+          else if(tool == T::Mukca)
+          {
+            tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_Mukca");
+          }
+          else if(tool == T::PandaToPandaCalib)
+          {
+            tool_rm = mc_rbdyn::RobotLoader::get_robot_module("Panda_Tool_PandaToPandaCalib");
+          }
 
-      if(tool_rm == nullptr)
-      {
-        result = robot_rm;
-      }
-      else
-      {
-        result = new mc_rbdyn::RobotModule(
-          robot_rm->connect(
-            *tool_rm, "panda_link8", "tool_connector", "",
-            mc_rbdyn::RobotModule::ConnectionParameters{}.name(robot_name).X_other_connection(sva::PTransformd::Identity())));
-      }
-    }
-  });
+          if(tool_rm == nullptr)
+          {
+            result = robot_rm;
+          }
+          else
+          {
+            result =
+                new mc_rbdyn::RobotModule(robot_rm->connect(*tool_rm, "panda_link8", "tool_connector", "",
+                                                            mc_rbdyn::RobotModule::ConnectionParameters{}
+                                                                .name(robot_name)
+                                                                .X_other_connection(sva::PTransformd::Identity())));
+          }
+        }
+      });
 
   if(result)
   {
@@ -233,15 +233,10 @@ mc_rbdyn::RobotModule * create(const std::string & n, const std::optional<PathsC
     mc_rtc::log::error("[mc_panda] Cannot create a robot module with name '{}'", n);
     // Optionally, print available variants:
     std::string variants;
-    ForAllVariants([&](PandaRobots robot, Tools tool)
-    {
-      variants += "- " + ModuleNameFromParams(robot, tool) + "\n";
-    });
+    ForAllVariants([&](PandaRobots robot, Tools tool) { variants += "- " + ModuleNameFromParams(robot, tool) + "\n"; });
     mc_rtc::log::info("Available variants are:\n{}", variants);
     return nullptr;
   }
 }
 
 } // namespace mc_panda
-
-

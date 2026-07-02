@@ -10,7 +10,8 @@ namespace mc_panda
 
 enum class PandaRobots
 {
-  FR1, FR3
+  FR1,
+  FR3
 };
 
 static std::string to_string(PandaRobots robots)
@@ -29,7 +30,12 @@ static std::string to_string(PandaRobots robots)
 
 enum class Tools
 {
-  Default, Hand, Pump, Foot, Mukca, PandaToPandaCalib
+  Default,
+  Hand,
+  Pump,
+  Foot,
+  Mukca,
+  PandaToPandaCalib
 };
 
 static std::string to_string(Tools tools)
@@ -75,8 +81,7 @@ inline static std::string ModuleNameFromParams(PandaRobots robot, Tools tool, co
 
 inline static std::string to_lower_case(std::string name)
 {
-  std::transform(name.begin(), name.end(), name.begin(),
-    [](unsigned char c){ return std::tolower(c); });
+  std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) { return std::tolower(c); });
   return name;
 }
 
@@ -95,8 +100,10 @@ struct PathsConfiguration
   std::string calib_base_path = "";
 };
 
-static auto FR3DefaultPaths = PathsConfiguration{FR3_DESCRIPTION_PATH, FR3_DESCRIPTION_PATH, FR3_DESCRIPTION_PATH, FR3_DESCRIPTION_PATH};
-static auto FR1DefaultPaths = PathsConfiguration{FR1_DESCRIPTION_PATH, FR1_DESCRIPTION_PATH, FR1_DESCRIPTION_PATH, FR1_DESCRIPTION_PATH};
+static auto FR3DefaultPaths =
+    PathsConfiguration{FR3_DESCRIPTION_PATH, FR3_DESCRIPTION_PATH, FR3_DESCRIPTION_PATH, FR3_DESCRIPTION_PATH};
+static auto FR1DefaultPaths =
+    PathsConfiguration{FR1_DESCRIPTION_PATH, FR1_DESCRIPTION_PATH, FR1_DESCRIPTION_PATH, FR1_DESCRIPTION_PATH};
 
 struct MC_PANDA_DLLAPI PandaRobotModule : public mc_rbdyn::RobotModule
 {
@@ -104,6 +111,7 @@ public:
   PandaRobotModule(const std::string & name, const PathsConfiguration & pathsConfig);
 };
 
-mc_rbdyn::RobotModule * create(const std::string & n, const std::optional<PathsConfiguration> & pathsConfig = std::nullopt);
+mc_rbdyn::RobotModule * create(const std::string & n,
+                               const std::optional<PathsConfiguration> & pathsConfig = std::nullopt);
 
 } // namespace mc_panda

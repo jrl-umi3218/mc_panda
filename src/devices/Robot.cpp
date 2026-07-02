@@ -110,39 +110,41 @@ void Robot::connect(franka::Robot * robot)
     lock.lock();
   }
   robot_ = robot;
-  commandThread_ = std::thread([this]() {
-    while(robot_)
-    {
+  commandThread_ = std::thread(
+      [this]()
       {
+        while(robot_)
+        {
+          {
+            std::unique_lock<std::mutex> lock(commandMutex_);
+            commandCv_.wait(lock, [this]() { return commands_.size() || !robot_; });
+          }
+          std::unique_lock<std::mutex> rLock(robotMutex_);
+          while(robot_ && commands_.size())
+          {
+            auto & cmd = commands_.front();
+            try
+            {
+              cmd.command();
+            }
+            catch(const franka::CommandException & exc)
+            {
+              mc_rtc::log::error("[{}] Command exception while executing {}:\n{}", name_, cmd.name, exc.what());
+            }
+            catch(const franka::NetworkException & exc)
+            {
+              mc_rtc::log::error("[{}] Network exception while executing {}:\n{}", name_, cmd.name, exc.what());
+            }
+            std::unique_lock<std::mutex> lock(commandMutex_);
+            commands_.pop();
+          }
+        }
         std::unique_lock<std::mutex> lock(commandMutex_);
-        commandCv_.wait(lock, [this]() { return commands_.size() || !robot_; });
-      }
-      std::unique_lock<std::mutex> rLock(robotMutex_);
-      while(robot_ && commands_.size())
-      {
-        auto & cmd = commands_.front();
-        try
+        while(commands_.size())
         {
-          cmd.command();
+          commands_.pop();
         }
-        catch(const franka::CommandException & exc)
-        {
-          mc_rtc::log::error("[{}] Command exception while executing {}:\n{}", name_, cmd.name, exc.what());
-        }
-        catch(const franka::NetworkException & exc)
-        {
-          mc_rtc::log::error("[{}] Network exception while executing {}:\n{}", name_, cmd.name, exc.what());
-        }
-        std::unique_lock<std::mutex> lock(commandMutex_);
-        commands_.pop();
-      }
-    }
-    std::unique_lock<std::mutex> lock(commandMutex_);
-    while(commands_.size())
-    {
-      commands_.pop();
-    }
-  });
+      });
 }
 
 void Robot::disconnect()
@@ -183,12 +185,15 @@ void Robot::setCollisionBehavior(const std::array<double, 7> & lower_torque_thre
 {
   {
     std::unique_lock<std::mutex> lock(commandMutex_);
-    commands_.emplace("setCollisionBehavior", [=]() {
-      robot_->setCollisionBehavior(lower_torque_thresholds_acceleration, upper_torque_thresholds_acceleration,
-                                   lower_torque_thresholds_nominal, upper_torque_thresholds_nominal,
-                                   lower_force_thresholds_acceleration, upper_force_thresholds_acceleration,
-                                   lower_force_thresholds_nominal, upper_force_thresholds_nominal);
-    });
+    commands_.emplace("setCollisionBehavior",
+                      [=]()
+                      {
+                        robot_->setCollisionBehavior(
+                            lower_torque_thresholds_acceleration, upper_torque_thresholds_acceleration,
+                            lower_torque_thresholds_nominal, upper_torque_thresholds_nominal,
+                            lower_force_thresholds_acceleration, upper_force_thresholds_acceleration,
+                            lower_force_thresholds_nominal, upper_force_thresholds_nominal);
+                      });
   }
   commandCv_.notify_one();
 }
@@ -200,10 +205,12 @@ void Robot::setCollisionBehavior(const std::array<double, 7> & lower_torque_thre
 {
   {
     std::unique_lock<std::mutex> lock(commandMutex_);
-    commands_.emplace("setCollisionBehavior", [=]() {
-      robot_->setCollisionBehavior(lower_torque_thresholds, upper_torque_thresholds, lower_force_thresholds,
-                                   upper_force_thresholds);
-    });
+    commands_.emplace("setCollisionBehavior",
+                      [=]()
+                      {
+                        robot_->setCollisionBehavior(lower_torque_thresholds, upper_torque_thresholds,
+                                                     lower_force_thresholds, upper_force_thresholds);
+                      });
   }
   commandCv_.notify_one();
 }
