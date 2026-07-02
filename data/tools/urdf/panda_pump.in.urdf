@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="panda_pump">
+<link name="tool_connector"></link>
+<joint name="panda_pump_joint" type="fixed">
+  <parent link="tool_connector"/>
+  <child link="panda_pump"/>
+  <origin rpy="0 0 -0.7853981633974483" xyz="0 0 0"/>
+</joint>
+<link name="panda_pump">
+  <inertial>
+    <mass value="1.01"/>
+    <origin rpy="0 0 0" xyz="0 0 0.063"/>
+    <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+  </inertial>
+  <visual>
+    <origin rpy="3.14 0 0" xyz="0 0 0"/>
+    <geometry>
+      <mesh filename="file://@MODULE_INSTALL_LOCATION@/meshes/panda_pump/pump.dae"/>
+    </geometry>
+    <material name="">
+      <color rgba="1 1 1 1"/>
+    </material>
+  </visual>
+  <collision>
+    <origin rpy="3.14 0 0" xyz="0 0 0"/>
+    <geometry>
+      <mesh filename="file://@MODULE_INSTALL_LOCATION@/meshes/panda_pump/pump.dae"/>
+    </geometry>
+  </collision>
+  <!--  scale="0.001 0.001 0.001" -->
+</link>
+</robot>

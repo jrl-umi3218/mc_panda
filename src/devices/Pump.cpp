@@ -1,4 +1,4 @@
-#include "Pump.h"
+#include <mc_panda/devices/Pump.h>
 
 #include <mc_rbdyn/Robot.h>
 

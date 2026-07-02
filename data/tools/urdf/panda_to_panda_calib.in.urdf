@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="panda_to_panda_calib">
+  <link name="tool_connector"></link>
+  <joint name="panda_to_panda_calib_joint" type="fixed">
+    <parent link="tool_connector"/>
+    <child link="panda_to_panda_calib"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  <link name="panda_to_panda_calib">
+    <inertial>
+      <mass value="0.1"/>
+      <origin rpy="0 0 0" xyz="0 0 0.01"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="file://@MODULE_INSTALL_LOCATION@/meshes/panda_to_panda_calib/panda_to_panda_calib.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="file://@MODULE_INSTALL_LOCATION@/meshes/panda_to_panda_calib/panda_to_panda_calib.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+</robot>

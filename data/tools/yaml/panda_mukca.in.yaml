@@ -1,0 +1,10 @@
+# Location of data files, all path in the YAML file are
+# interpreted relative to this path unless they are absolute paths
+path: "@MODULE_INSTALL_LOCATION@"
+name: panda_mukca
+urdf_path: urdf/panda_mukca.urdf
+rsdf_dir: rsdf/panda_mukca
+fixed: true
+
+# Default orientation (quaternion) and position of the floating base
+default_attitude: [1., 0., 0., 0., 0., 0., 0.]

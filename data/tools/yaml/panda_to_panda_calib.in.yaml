@@ -1,0 +1,17 @@
+# Location of data files, all path in the YAML file are
+# interpreted relative to this path unless they are absolute paths
+path: "@MODULE_INSTALL_LOCATION@"
+name: panda_to_panda_calib
+urdf_path: urdf/panda_to_panda_calib.urdf
+rsdf_dir: rsdf/panda_to_panda_calib
+fixed: true
+
+# Default orientation (quaternion) and position of the floating base
+default_attitude: [1., 0., 0., 0., 0., 0., 0.]
+
+frames:
+  - name: OtherPanda
+    parent: panda_to_panda_calib
+    X_p_f:
+      translation: [0, 0, 0.01]
+      rotation: [3.14, 0, 0.0]

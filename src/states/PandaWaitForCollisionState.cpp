@@ -1,8 +1,8 @@
-#include "PandaWaitForCollisionState.h"
+#include <mc_panda/states/PandaWaitForCollisionState.h>
 
 #include <mc_tasks/MetaTaskLoader.h>
 
-#include <devices/Robot.h>
+#include <mc_panda/devices/Robot.h>
 
 #ifndef SPDLOG_FMT_EXTERNAL
 #  include <spdlog/fmt/bundled/ranges.h>
